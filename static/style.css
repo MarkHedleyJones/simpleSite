@@ -1,0 +1,178 @@
+
+.bg_l4 {background-color: #EFEFEF}
+.bg_l3 {background-color: #B3B3B3}
+.bg_l2 {background-color: #9BD5E1}
+.bg_l1 {background-color: #666666}
+
+.c_l4 {color: #EFEFEF}
+.c_l3 {color: #B3B3B3}
+.c_l2 {color: #9BD5E1}
+.c_l1 {color: #666666}
+
+.b_l4 {border-color: #EFEFEF}
+.b_l3 {border-color: #B3B3B3}
+.b_l2 {border-color: #9BD5E1}
+.b_l1 {border-color: #666666}
+
+* {
+	padding: 0;
+	margin: 0;
+}
+
+html {
+	background-color: #EFEFEF;
+	padding: 0;
+	margin: 0;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+}
+
+#content {
+	position: relative;
+	margin: 0 auto;
+}
+
+.centerwrap {
+	width: 100%;
+	text-align: center;
+}
+
+.mainFont {
+	font-family: 'Merriweather Sans', sans-serif;
+}
+
+.header {
+	display: inline-block;
+	text-align: center;
+	width: 580px;
+	margin: 20px 0;
+}
+
+.header img {
+	display: inline;
+}
+
+.header .right {
+    width: 350px;
+    position: relative;
+    display: inline-block;
+    top: -70px;
+}
+
+.header.mini {
+	width: 340px;
+}
+
+.header.mini .title {
+	font-size: 1.4em;
+}
+
+.header.mini .subtitle {
+	font-size: 1.2em;
+}
+
+.header.mini .right {
+    top: -35px;
+    width: 220px;
+}
+
+.header .title {
+	position: relative;
+	font-size: 2.2em;
+	font-weight: bold;
+}
+
+.header .subtitle {
+	position: relative;
+	font-size: 1.9em;
+}
+.navbanner {
+	width: 100%;
+	padding: 10px 0;
+	text-align: center;
+	border: 0px solid #929292;
+	border-width: 0 0 1px 0;
+}
+
+.navbanner ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+.navbanner ul li {
+	display: inline;
+	margin: 0 60px;
+}
+
+.navbanner ul li a {
+	font-size: 1.2em;
+    color: #666666;
+}
+
+.navbanner ul li a:hover {
+    color: #444444;
+}
+
+
+.main {
+	max-width: 960px;
+	min-width: 460px;
+	margin: 0 auto;
+	padding: 20px;
+	text-align: center;
+}
+
+.main h2 {
+	text-align: center;
+	font-weight: 500;
+}
+
+.main h1 {
+    text-align: center;
+    font-weight: 500;
+}
+
+.mainwrap {
+	position: relative;
+	width: 100%;
+	min-height: 300px;
+	background-color: #FFFFFF;
+	min-height: 100%;
+}
+
+.expBox {
+	display: inline-block;
+	margin: 20px;
+	width: 256px;
+	height: 192px;
+	border-style: solid;
+	border-width: 2px;
+	text-align: center;
+	box-shadow: 2px 2px 4px 0px #777777;
+    -moz-box-shadow: 2px 2px 4px 0px #777777;
+    -webkit-box-shadow: 2px 2px 4px 0px #777777;
+    text-decoration: none;
+    overflow: hidden;
+}
+
+.expBox.portrait {
+	width: 192px;
+	height: 256px;
+}
+
+.expBox span {
+	background-color: #555555;
+	display: block;
+	color: white;
+	padding: 2px 0;
+	font-weight: 700;
+}
+
+.expBox p {
+	font-size: 1.7em;
+	margin: 10px;
+}

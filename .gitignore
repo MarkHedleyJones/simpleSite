@@ -1,0 +1,13 @@
+# Files and folders for git to ignore #
+
+# Ignore vim swap files
+*.swp
+
+# Ignore log files
+*.log
+
+# Eclipse project files
+.buildpath
+.project
+.settings
+.pydevproject
