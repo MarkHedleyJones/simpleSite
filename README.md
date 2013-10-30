@@ -8,9 +8,12 @@ Installation
 
 These instructions assume you are using Debian or Ubuntu.
 
+    sudo ln -s /home/username/where/you/put/website-base/ /var/www/website-base
     cd /etc/apache2/sites-available
     sudo cp default website-base
     sudo nano website-base
+    
+Make sure you have changed permissions for folders leading up to the source folder. ?? Easy (recursive) way to do this?
 
 Then make sure the file matches the following. You can replace www.simpleWebsite.co.nz with whatever your site is called.
 
@@ -57,3 +60,19 @@ Then make sure the file matches the following. You can replace www.simpleWebsite
 
         CustomLog ${APACHE_LOG_DIR}/access.log combined
     </VirtualHost>
+
+
+Then run
+
+    sudo a2ensite website-base
+    sudo service apache2 reload
+    
+Then edit your hosts file so you can see the site
+
+    sudo nano /etc/hosts
+    
+and add the followinig line
+
+    127.0.0.1       www.simpleWebsite.co.nz
+    127.0.0.1       static.simpleWebsite.co.nz
+    
