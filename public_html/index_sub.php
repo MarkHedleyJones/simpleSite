@@ -1,6 +1,8 @@
 <?php
-$p = new CategoryPage();
-$c = $p->content();
+$p = new BasePage('Home', 'Personal website.', header_small());
+#$p = new CategoryPage();
+#$c = $p->content();
+
 
 $location = path_array();
 $a = new Content();
@@ -18,4 +20,4 @@ foreach ($experiences as $experience) $a->append($experience->displayBox());
 $a->wrap('div',array('class'=>'main'));
 $a->wrap('div',array('class'=>'mainwrap'));
 
-$c->append($a);
+$p->append($a);

@@ -20,6 +20,60 @@ function url_static() {
 	return 'http://static.' . sitename() . tld();
 }
 
+function header_large() {
+	
+	$c = new Content();
+	
+	// Create the frontpage header
+	$h = new Content();
+	$h->append(div(NAME_OF_SITE, array('class'=>'title c_l1')));
+	$h->append(div(sitename(), array('class'=>'subtitle c_l3')));
+	$h->wrap('div', array('class'=>'right mainFont'));
+	$h->prepend(img( url_static() . '/identicon_210.png','Identicon'));
+	$h->wrap('div', array('class'=>'header'));
+	$h->wrap('div', array('class'=>'centerwrap'));
+	$c->append($h);
+	
+	// Create center navigation strip
+	$n = new Content();
+	$path = path_string();
+	$dirs = get_subdirs($path);
+	
+	$list = new UnorderedList(array('class'=>'c_l1'));
+	foreach ($dirs as $dir) {
+		
+		$list->append(href(ucfirst(substr($dir,1)),$dir));
+	}
+	$n->append($list);
+	$n->wrap('div', array('class'=>'navbanner mainFont bg_l3'));
+	
+	$c->append($n);
+	return $c;
+}
+
+function header_small() {
+	$location = path_array();
+	
+	$c = new Content();
+	
+	// Build the header
+	$h = new Content();
+	$h->append(div(NAME_OF_SITE, array('class'=>'title c_l1')));
+	$h->append(div(sitename(), array('class'=>'subtitle c_l3')));
+	$h->wrap('div', array('class'=>'right mainFont'));
+	$h->prepend(img( url_static() . '/identicon_105.png','Identicon'));
+	$h->wrap('div', array('class'=>'header mini'));
+	$h->wrap('div', array('class'=>'centerwrap'));
+	$c->append($h);
+	
+	
+	// Create center navigation strip
+	$n = new Content();
+	formatPathURL($location, $n);
+	$n->wrap('div', array('class'=>'navbanner mainFont bg_l3'));
+	$c->append($n);
+	return $c;
+}
 
 class ExperiencePage extends Page {
 
@@ -28,26 +82,6 @@ class ExperiencePage extends Page {
 		$title = ucfirst($location[count($location)-1]);
 		$description = 'This is my personal website.';
 		parent::__construct($title . ' | ' . sitename(), $description);
-
-		$c = new Content();
-
-		// Build the header
-		$h = new Content();
-		$h->append(div(NAME_OF_SITE, array('class'=>'title c_l1')));
-		$h->append(div(sitename(), array('class'=>'subtitle c_l3')));
-		$h->wrap('div', array('class'=>'right mainFont'));
-		$h->prepend(img( url_static() . '/identicon_105.png','Identicon'));
-		$h->wrap('div', array('class'=>'header mini'));
-		$h->wrap('div', array('class'=>'centerwrap'));
-		$c->append($h);
-
-
-		// Create center navigation strip
-		$n = new Content();
-		formatPathURL($location, $n);
-		$n->wrap('div', array('class'=>'navbanner mainFont bg_l3'));
-		$c->append($n);
-		$this->c = $c;
 	}
 
 	public function __destruct() {
@@ -86,26 +120,6 @@ class CategoryPage extends Page {
         $title = ucfirst($location[count($location)-1]);
         $description = 'This is my personal website.';
         parent::__construct($title . ' | ' . sitename(), $description);
-
-        $c = new Content();
-
-        // Build the header
-        $h = new Content();
-        $h->append(div(NAME_OF_SITE, array('class'=>'title c_l1')));
-        $h->append(div(sitename(), array('class'=>'subtitle c_l3')));
-        $h->wrap('div', array('class'=>'right mainFont'));
-        $h->prepend(img( url_static() . '/identicon_105.png','Identicon'));
-        $h->wrap('div', array('class'=>'header mini'));
-        $h->wrap('div', array('class'=>'centerwrap'));
-        $c->append($h);
-
-
-        // Create center navigation strip
-        $n = new Content();
-        formatPathURL($location, $n);
-        $n->wrap('div', array('class'=>'navbanner mainFont bg_l3'));
-        $c->append($n);
-        $this->c = $c;
     }
 
     public function __destruct() {
@@ -129,11 +143,16 @@ class CategoryPage extends Page {
 
 class BasePage extends Page {
 
-    public function __construct($title, $description) {
+	public $header = False;
+	
+    public function __construct($title, $description, $header) {
         parent::__construct($title . ' | ' . sitename(), $description);
+        $this->header = $header;
     }
 
     public function __destruct() {
+    	if ($this->header) $this->prepend($this->header);
+    	#$this->prepend(header_large());
         $this->add_script_reference('http://code.jquery.com/jquery-latest.min.js');
         $this->add_css_reference( url_static() . '/style.css');
         $this->add_css_reference('http://fonts.googleapis.com/css?family=Merriweather+Sans:400,700');

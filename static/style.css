@@ -23,11 +23,17 @@ html {
 	background-color: #EFEFEF;
 	padding: 0;
 	margin: 0;
+	height: 100%;
 }
 
 body {
 	margin: 0;
 	padding: 0;
+	height: 100%;
+}
+
+#main {
+	height: 100%;
 }
 
 #content {
@@ -139,9 +145,8 @@ body {
 .mainwrap {
 	position: relative;
 	width: 100%;
-	min-height: 300px;
+	height: 100%;
 	background-color: #FFFFFF;
-	min-height: 100%;
 }
 
 .expBox {
