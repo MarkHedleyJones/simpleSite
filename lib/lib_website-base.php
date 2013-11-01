@@ -26,12 +26,11 @@ function header_large() {
 	
 	// Create the frontpage header
 	$h = new Content();
-	$h->append(div(NAME_OF_SITE, array('class'=>'title c_l1')));
-	$h->append(div(sitename(), array('class'=>'subtitle c_l3')));
+	$h->append(div(NAME_OF_SITE, array('class'=>'title c1')));
+	$h->append(div(sitename(), array('class'=>'subtitle c3')));
 	$h->wrap('div', array('class'=>'right mainFont'));
 	$h->prepend(img( url_static() . '/identicon_210.png','Identicon'));
-	$h->wrap('div', array('class'=>'header'));
-	$h->wrap('div', array('class'=>'centerwrap'));
+	$h->wrap('div', array('id'=>'head'));
 	$c->append($h);
 	
 	// Create center navigation strip
@@ -41,13 +40,13 @@ function header_large() {
 	
 	$list = new UnorderedList(array('class'=>'c_l1'));
 	foreach ($dirs as $dir) {
-		
 		$list->append(href(ucfirst(substr($dir,1)),$dir));
 	}
 	$n->append($list);
-	$n->wrap('div', array('class'=>'navbanner mainFont bg_l3'));
+	$n->wrap('div', array('class'=>'navbanner mainFont bg_c3 bdr_c2 a_c2 ahover_c1'));
 	
 	$c->append($n);
+	$c->wrap('div', array('id'=>'header', 'class'=>'bg_c4'));
 	return $c;
 }
 
@@ -58,103 +57,50 @@ function header_small() {
 	
 	// Build the header
 	$h = new Content();
-	$h->append(div(NAME_OF_SITE, array('class'=>'title c_l1')));
-	$h->append(div(sitename(), array('class'=>'subtitle c_l3')));
+	$h->append(div(NAME_OF_SITE, array('class'=>'title c1')));
+	$h->append(div(sitename(), array('class'=>'subtitle c3')));
 	$h->wrap('div', array('class'=>'right mainFont'));
 	$h->prepend(img( url_static() . '/identicon_105.png','Identicon'));
-	$h->wrap('div', array('class'=>'header mini'));
-	$h->wrap('div', array('class'=>'centerwrap'));
+	$h->wrap('div', array('id'=>'head', 'class'=>'mini'));
 	$c->append($h);
 	
 	
 	// Create center navigation strip
 	$n = new Content();
 	formatPathURL($location, $n);
-	$n->wrap('div', array('class'=>'navbanner mainFont bg_l3'));
+	$n->wrap('div', array('class'=>'navbanner mainFont bg_c3 bdr_c2'));
 	$c->append($n);
+	$c->wrap('div', array('id'=>'header', 'class'=>'bg_c4'));
 	return $c;
 }
 
-class ExperiencePage extends Page {
-
-	public function __construct() {
-		$location = path_array();
-		$title = ucfirst($location[count($location)-1]);
-		$description = 'This is my personal website.';
-		parent::__construct($title . ' | ' . sitename(), $description);
-	}
-
-	public function __destruct() {
-		$this->append($this->c);
-        $this->add_script_reference('http://code.jquery.com/jquery-latest.min.js');
-
-		$this->add_script_reference( url_static() . '/fancybox/lib/jquery.mousewheel-3.0.6.pack.js');		
-		$this->add_css_reference( url_static() . '/style.css');
-		$this->add_css_reference( url_static() . '/fancybox/source/jquery.fancybox.css?v=2.1.5');
-		$this->add_script_reference( url_static() . '/fancybox/source/jquery.fancybox.pack.js?v=2.1.5');
-		$this->add_css_reference('http://fonts.googleapis.com/css?family=Merriweather+Sans:400,700');
-		$this->add_postscript('$(document).ready(function() {
-	$(".fancybox").fancybox({
-		openEffect	: "none",
-		closeEffect	: "none",
-	});
-});');
-		$this->menu();
-		parent::render();
-	}
-
-	public function content() {
-		return $this->c;
-	}
-
-
-	public function menu() {
-		$root = $GLOBALS['_SERVER']['DOCUMENT_ROOT'];
-	}
+function footer() {
+	$c = new Content();
+	$c->span(FOOTER_TEXT, array('class'=>'mainFont'));
+	$c->wrap('div', array('id' => 'footer',
+						  'class' => 'bg_c3 bdr_c2'));
+	return $c;
 }
 
-class CategoryPage extends Page {
-
-    public function __construct() {
-        $location = path_array();
-        $title = ucfirst($location[count($location)-1]);
-        $description = 'This is my personal website.';
-        parent::__construct($title . ' | ' . sitename(), $description);
-    }
-
-    public function __destruct() {
-        $this->append($this->c);
-        $this->add_script_reference('http://code.jquery.com/jquery-latest.min.js');
-        $this->add_css_reference( url_static() . '/style.css');
-        $this->add_css_reference('http://fonts.googleapis.com/css?family=Merriweather+Sans:400,700');
-        $this->menu();
-        parent::render();
-    }
-
-    public function content() {
-        return $this->c;
-    }
-
-
-    public function menu() {
-        $root = $GLOBALS['_SERVER']['DOCUMENT_ROOT'];
-    }
-}
 
 class BasePage extends Page {
 
-	public $header = False;
+	public $header;
+	public $footer;
 	
-    public function __construct($title, $description, $header) {
+    public function __construct($title, $description, $header=False, $footer=False) {
         parent::__construct($title . ' | ' . sitename(), $description);
         $this->header = $header;
+        $this->footer = $footer;
     }
 
     public function __destruct() {
+    	$this->wrap('div', array('id'=>'content'));
     	if ($this->header) $this->prepend($this->header);
-    	#$this->prepend(header_large());
-        $this->add_script_reference('http://code.jquery.com/jquery-latest.min.js');
+    	if ($this->footer) $this->append($this->footer);
+    	$this->add_script_reference('http://code.jquery.com/jquery-latest.min.js');
         $this->add_css_reference( url_static() . '/style.css');
+        $this->add_css_reference( url_static() . '/theme.php');
         $this->add_css_reference('http://fonts.googleapis.com/css?family=Merriweather+Sans:400,700');
         parent::render();
     }
@@ -183,6 +129,7 @@ class Experience {
         	$this->description = '';
         	$this->thumbnail = False;
         	$this->images = False;
+        	$this->date = new DateTime();
         }
     }
 
@@ -274,7 +221,6 @@ class Experience {
                 }
 
                 // Link the thumbnail, set the objects thumbnail and return
-                echo $this->path . '/' . $newThumb;
                 symlink($this->path . '/' . $newThumb, $thumbName);
                 $this->thumbnail = path2url($thumbName);
                 return $this->thumbnail;
@@ -286,14 +232,14 @@ class Experience {
     public function displayBox() {
 
         $box = new Content();
-        $box->append(span($this->name));
+        $box->append(span($this->name, array('class'=>'c5')));
         $wrapAttrs = array('href' => $this->url,
-                           'class' => 'expBox bg_l4 mainFont');
+                           'class' => 'expBox mainFont bg_c4');
         if ($this->get_thumbnail()) {
             $wrapAttrs['style'] = 'background-image: url(' . url_www() . $this->get_thumbnail(). ')';
         }
         else {
-            $box->append(p($this->description,array('class'=>'c_l3')));
+            $box->append(p($this->description,array('class'=>'c3')));
         }
         $box->wrap('a',$wrapAttrs);
         //Find a thumbnail for the experience
@@ -338,7 +284,6 @@ function get_subdirs($path,$debug=False) {
         }
     }
     if ($debug) print 'returning ';
-    if ($debug) print_r($urlSubdirs);
     if ($debug) print '<br>';
     return $urlSubdirs;
 }
@@ -430,7 +375,6 @@ function getDirs($path) {
         }
     }
     echo 'returning';
-    print_r($out);
     return $out;
 }
 
