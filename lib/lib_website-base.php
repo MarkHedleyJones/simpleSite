@@ -5,7 +5,7 @@ define('ROOT_URL', 'http://' . $_SERVER['HTTP_HOST']);
 
 function sitename() {
 	$parts = explode('.',$_SERVER['HTTP_HOST']);
-	return $parts[1];	
+	return $parts[1];
 }
 
 function tld() {
@@ -21,9 +21,9 @@ function url_static() {
 }
 
 function header_large() {
-	
+
 	$c = new Content();
-	
+
 	// Create the frontpage header
 	$h = new Content();
 	$h->append(div(NAME_OF_SITE, array('class'=>'title c1')));
@@ -32,19 +32,19 @@ function header_large() {
 	$h->prepend(img( url_static() . '/identicon_210.png','Identicon'));
 	$h->wrap('div', array('id'=>'head'));
 	$c->append($h);
-	
+
 	// Create center navigation strip
 	$n = new Content();
 	$path = path_string();
 	$dirs = get_subdirs($path);
-	
+
 	$list = new UnorderedList(array('class'=>'c_l1'));
 	foreach ($dirs as $dir) {
 		$list->append(href(ucfirst(substr($dir,1)),$dir));
 	}
 	$n->append($list);
 	$n->wrap('div', array('class'=>'navbanner mainFont bg_c3 bdr_c2 a_c2 ahover_c1'));
-	
+
 	$c->append($n);
 	$c->wrap('div', array('id'=>'header', 'class'=>'bg_c4'));
 	return $c;
@@ -52,9 +52,9 @@ function header_large() {
 
 function header_small() {
 	$location = path_array();
-	
+
 	$c = new Content();
-	
+
 	// Build the header
 	$h = new Content();
 	$h->append(div(NAME_OF_SITE, array('class'=>'title c1')));
@@ -63,8 +63,8 @@ function header_small() {
 	$h->prepend(img( url_static() . '/identicon_105.png','Identicon'));
 	$h->wrap('div', array('id'=>'head', 'class'=>'mini'));
 	$c->append($h);
-	
-	
+
+
 	// Create center navigation strip
 	$n = new Content();
 	formatPathURL($location, $n);
@@ -78,7 +78,7 @@ function footer() {
 	$c = new Content();
 	$c->span(FOOTER_TEXT, array('class'=>'mainFont'));
 	$c->wrap('div', array('id' => 'footer',
-						  'class' => 'bg_c3 bdr_c2'));
+						  'class' => 'bg_c3 bdr_c2 c2 fSmaller'));
 	return $c;
 }
 
@@ -87,7 +87,7 @@ class BasePage extends Page {
 
 	public $header;
 	public $footer;
-	
+
     public function __construct($title, $description, $header=False, $footer=False) {
         parent::__construct($title . ' | ' . sitename(), $description);
         $this->header = $header;
@@ -106,8 +106,73 @@ class BasePage extends Page {
     }
 }
 
+class ExperienceFile {
+    public $filename;
+    public $path;
+    public $date;
+    public $dateFormatter;
+    public $filetype;
+    public $dateString;
+    public $extension;
+
+    public function __construct($path) {
+        $this->path = $path;
+        $this->filename = end(explode('/', $path));
+        $this->get_fileDate($path);
+        $this->extension = end(explode('.',$this->filename));
+        if ($this->extension == 'jpg') $this->filetype = 'photo';
+        elseif ($this->extension == 'png') $this->filetype = 'image';
+        elseif ($this->extension == 'txt') $this->filetyte = 'text';
+    }
+
+    public static function comparer($a, $b) {
+        return $a->date < $b->date;
+    }
+
+    public static function sorted($input) {
+        usort($input, 'ExperienceFile::comaprer');
+        return $input;
+    }
+
+    public function get_fileDate() {
+        if (strpos($this->filename,'-') != False) {
+            $parts = explode('-', $this->filename);
+            $parts = array_filter($parts, function ($x) {return is_numeric($x); });
+
+            $date = False;
+            $numParts = count($parts);
+            if ($numParts < 1 || $numParts > 3) {
+                $date = new DateTime(filectime($filename));
+                $formatter = 'jS M Y';
+            }
+            elseif ($numParts == 1) {
+                $date = new DateTime($parts[0] . '-1-1 0:0:0');
+                $formatter = 'Y';
+            }
+            elseif ($numParts == 2) {
+                $date = new DateTime($parts[0] . '-' . $parts[1] . '-1 0:0:0');
+                $formatter = 'M Y';
+            }
+            elseif ($numParts == 3) {
+                $date = new DateTime($parts[0] . '-' . $parts[1] . '-' . $parts[2] . ' 0:0:0');
+                $formatter = 'jS M Y';
+            }
+
+        }
+        else {
+            $date = new DateTime(date('c',filectime($this->path)));
+            $formatter = 'jS M Y';
+        }
+        $this->date = $date;
+        $this->dateString = $date->format($formatter);
+        return True;
+    }
+}
+
 
 class Experience {
+
+    public $files = Array();
 
     public function __construct($url) {
         $this->url = $url;
@@ -129,7 +194,7 @@ class Experience {
         	$this->description = '';
         	$this->thumbnail = False;
         	$this->images = False;
-        	$this->date = new DateTime();
+        	$this->date = new DateTime(date('c',filectime($this->path)));
         }
     }
 
@@ -153,7 +218,7 @@ class Experience {
         usort($input, 'Experience::comaprer');
         return $input;
     }
-    
+
     public function get_images() {
     	if ($this->images == False) {
 	    	$this->images = array_map(
@@ -166,10 +231,30 @@ class Experience {
     	}
     	return $this->images;
     }
-    
+
+    public function populate_files() {
+        //Supported filetypes
+        $types = Array('images' => 'jpg',
+                       'texts' => 'txt');
+        foreach ($types AS $type => $extension) {
+            $files = $this->get_files($extension,True);
+            foreach ($files AS $file) {
+                array_push($this->files,new ExperienceFile($file));
+            }
+        }
+    }
+
+
+    public function get_files($extension, $addPath=False) {
+        return array_map(function ($x) use ($addPath) {
+            if ($addPath) return $this->path . '/' .  $x;
+            else return $x;
+        }, get_filesInDir($this->path, $extension));
+    }
+
     public function create_imageThumbnail($image) {
     	$box = new Content();
-    	$class = 'fancybox expBox';
+    	$class = 'fancybox photo';
     	if (strpos($image,'_p') != False) $class .= ' portrait';
     	$wrapAttrs = array('href' => $this->url . '/' . $image . '_main.jpg',
     			'class' => $class,
@@ -177,10 +262,10 @@ class Experience {
     			'title' => 'test');
     	$box->append(img( url_www() . $this->url . '/' . $image . '_thumb.jpg',""));
     	$box->wrap('a',$wrapAttrs);
-    	
+
     	return $box;
     }
-    
+
     public function get_thumbnails($element) {
     	$images = $this->get_images();
     	$out = array();
@@ -209,7 +294,7 @@ class Experience {
             $photos = array_filter($photos,
                     function ($x) {return strpos($x,'_thumb.jpg') !== False;});
             if (count($photos) > 0) {
-            	
+
 
                 // Pick an image randomly from this directory
                 $newThumb = $photos[array_rand($photos,1)];
@@ -232,19 +317,24 @@ class Experience {
     public function displayBox() {
 
         $box = new Content();
-        $box->append(span($this->name, array('class'=>'c5')));
+        $box->span($this->name, array('class'=>'c5', 'style'=>'display: inline-block; width: 100%'));
+        $thumb = $this->get_thumbnail();
+        if ($thumb == False) $thumb = url_static() . '/noPhoto.png';
+        else $thumb = url_www() . $thumb;
+        $box->img($thumb, '');
         $wrapAttrs = array('href' => $this->url,
                            'class' => 'expBox mainFont bg_c4');
-        if ($this->get_thumbnail()) {
-            $wrapAttrs['style'] = 'background-image: url(' . url_www() . $this->get_thumbnail(). ')';
-        }
-        else {
-            $box->append(p($this->description,array('class'=>'c3')));
-        }
         $box->wrap('a',$wrapAttrs);
         //Find a thumbnail for the experience
         return $box;
     }
+}
+
+function get_filesInDir($path, $extension='jpg') {
+    return array_filter(scandir($path), function($x) use($extension) {
+        if (strpos(strtolower($x), '.' . $extension) != False) return True;
+        else return False;
+    });
 }
 
 function get_photosInDir($path) {

@@ -20,6 +20,7 @@ $a->h1($experience->name . ' ' . $experience->date->format('Y'),array('class'=>'
 $a->h2($experience->description,array('class'=>'c_l2'));
 
 $experience->get_thumbnails($a);
+$experience->populate_files();
 
 $a->wrap('div',array('class'=>'main'));
 

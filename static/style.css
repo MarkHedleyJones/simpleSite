@@ -1,20 +1,4 @@
 @CHARSET "UTF-8";
-/*
-.bg_c4 {background-color: #EFEFEF}
-.bg_c3 {background-color: #B3B3B3}
-.bg_c1 {background-color: #666666}
-.bg_cx {background-color: #9BD5E1}
-
-.c4 {color: #EFEFEF}
-.c3 {color: #B3B3B3}
-.c1 {color: #666666}
-.cx {color: #9BD5E1}
-
-.bdr_c4 {border-color: #EFEFEF}
-.bdr_c3 {border-color: #B3B3B3}
-.bdr_c1 {border-color: #666666}
-.bdr_cx {border-color: #9BD5E1}
-*/
 
 * {
 	padding: 0;
@@ -32,6 +16,120 @@ body {
 	padding: 0;
 	height: 100%;
 }
+
+/**************************************************************** GENERICS ***/
+
+/* border radius 8 */
+.bdr_r8 {
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+}
+
+/* border radius 5 */
+.bdr_r5 {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+/* border radius 3 */
+.bdr_r3 {
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+/* border enable */
+.bdr {
+    border-style: solid;
+    border-width: 1px;
+}
+
+.bdr_w2 {
+    border-style: solid;
+    border-width: 2px !important;
+}
+
+.mainFont { font-family: 'Merriweather Sans', sans-serif }
+
+.fLargest { font-size: 1.6em }
+.fLarger { font-size: 1.3em }
+.fLarge { font-size: 1.1em }
+.fMedium { font-size: 1.0em }
+.fSmall { font-size: 0.9em }
+.fSmaller { font-size: 0.8em }
+.fSmallest { font-size: 0.7em }
+
+.l { text-align: left }             /* left */
+.c { text-align: center }           /* centre */
+.r { text-align: right }            /* right */
+.i { font-style: italic }           /* italic */
+.u { text-decoration: underline }   /* underline */
+
+/* mnemonic - marginCenter */
+.mc {
+	margin-left: auto;
+	margin-right: auto
+}
+
+.p0 { padding: 0; }
+.p5 { padding: 5px; }
+.p10 { padding: 10px; }
+.p15 { padding: 15px; }
+.p20 { padding: 20px; }
+
+.p05 { padding: 0 5px; }
+.p010 { padding: 0 10px; }
+.p010 { padding: 0 15px; }
+.p020 { padding: 0 20px; }
+
+.p5_0 { padding: 5px 0px; }
+.p10_0 { padding: 10px 0px; }
+.p15_0 { padding: 15px 0px; }
+.p20_0 { padding: 20px 0px; }
+
+.m0 { margin: 0; }
+.m5 { margin: 5px; }
+.m10 { margin: 10px; }
+.m15 { margin: 15px; }
+.m20 { margin: 20px; }
+
+.m05 { margin: 0 5px; }
+.m010 { margin: 0 10px; }
+.m010 { margin: 0 15px; }
+.m020 { margin: 0 20px; }
+
+.m5_0 { margin: 5px 0px; }
+.m10_0 { margin: 10px 0px; }
+.m15_0 { margin: 15px 0px; }
+.m20_0 { margin: 20px 0px; }
+
+.li_p10 li { padding: 10px; }
+.li_p10_0 li { padding: 10px 0; }
+.li_p010 li { padding: 0 10px; }
+
+.li_p5 li { padding: 5px; }
+.li_p5_0 li { padding: 5px 0; }
+.li_p05 li { padding: 0 5px; }
+
+.b { font-weight: 700 }
+
+.hidden { display: none }
+
+.noDecor {
+	list-style-type: none;
+	text-decoration: none;
+}
+
+.flushTable tr th { text-align: right; }
+.flushTable tr td { text-aligh: left; }
+
+
+.fl { float: left; }
+.fr { float: right; }
+
+/******************************************************* GENERAL PAGE LAYOUT */
 
 #main {
 	height: 100%;
@@ -53,13 +151,11 @@ body {
 	width: 100%;
 	border-style: solid;
 	border-width: 1px 0 0 0;
-	height: 44px;
+	height: 30px;
 	text-align: center;
+	padding-top: 14px;
 }
 
-#footer span {
-	
-}
 
 h2 {
     text-align: center;
@@ -71,11 +167,9 @@ h1 {
     font-weight: 500;
 }
 
-
 .mainFont {
 	font-family: 'Merriweather Sans', sans-serif;
 }
-
 
 #head {
 	text-align: center;
@@ -158,12 +252,28 @@ h1 {
 	text-align: center;
 }
 
+.photo {
+	box-shadow: 2px 2px 4px 0px #777777;
+    -moz-box-shadow: 2px 2px 4px 0px #777777;
+    -webkit-box-shadow: 2px 2px 4px 0px #777777;
+    border-style: solid;
+	border-width: 2px;
+	display: inline-block;
+	margin: 20px;
+	width: 256px;
+	height: 196px;
+}
+
+.photo.portrait {
+	width: 192px;
+	height: 260px;
+}
 
 .expBox {
 	display: inline-block;
 	margin: 20px;
 	width: 256px;
-	height: 192px;
+	height: 216px;
 	border-style: solid;
 	border-width: 2px;
 	text-align: left;
@@ -172,7 +282,11 @@ h1 {
     -webkit-box-shadow: 2px 2px 4px 0px #777777;
     text-decoration: none;
     overflow: hidden;
-    background-image: url(/noPhoto_small.png);
+    outline: none;
+}
+
+.expBox img {
+	display: inline-block;
 }
 
 .expBox.portrait {
@@ -183,8 +297,10 @@ h1 {
 .expBox span {
 	background-color: #555555;
 	display: block;
-	padding: 2px 0 2px 5px;
+	padding: 1px 0 3px 5px;
 	font-weight: 700;
+	width: 250px;
+	height: 20px;
 }
 
 .expBox p {
