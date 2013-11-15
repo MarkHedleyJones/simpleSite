@@ -16,8 +16,8 @@ $category = $path_arr[0];
 
 $experience = new Experience(path_string());
 
-$a->h1($experience->name . ' ' . $experience->date->format('Y'),array('class'=>'c_l1'));
-$a->h2($experience->description,array('class'=>'c_l2'));
+$a->h1($experience->name . ' ' . $experience->date->format('Y'),array('class'=>'c2 mainFont'));
+$a->h2($experience->description,array('class'=>'c3 mainFont'));
 
 $experience->get_thumbnails($a);
 $experience->populate_files();

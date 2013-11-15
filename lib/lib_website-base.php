@@ -3,6 +3,7 @@
 define('ROOT_NAME',$_SERVER['HTTP_HOST']);
 define('ROOT_URL', 'http://' . $_SERVER['HTTP_HOST']);
 
+
 function sitename() {
 	$parts = explode('.',$_SERVER['HTTP_HOST']);
 	return $parts[1];
@@ -82,7 +83,6 @@ function footer() {
 	return $c;
 }
 
-
 class BasePage extends Page {
 
 	public $header;
@@ -106,229 +106,51 @@ class BasePage extends Page {
     }
 }
 
-class ExperienceFile {
-    public $filename;
-    public $path;
-    public $date;
-    public $dateFormatter;
-    public $filetype;
-    public $dateString;
-    public $extension;
+// function date_fromString($string) {
+//     $parts = explode('-', $string);
+//     $parts = array_filter($parts, function ($x) {return is_numeric($x); });
+//     $date = False;
+//     $numParts = count($parts);
+//     if ($numParts == 1) {
+//         if (strlen($parts[0]) > 4) {
+//             // Contains date data non-delimited
+//             $str = $parts[0];
+//             if (strlen($str) == 6) {
+//                 $parts = Array(substr($str, 0, 4),
+//                                substr($str, 4, 6));
+//             }
+//             elseif (strlen($str) == 8) {
+//                 $parts = Array(substr($str, 0, 4),
+//                                substr($str, 4, 6),
+//                                substr($str, 6, 8));
+//             }
+//             else return False;
+//         }
+//         else $parts = Array($str);
+//     }
+//     return array_toDate($parts);
+// }
 
-    public function __construct($path) {
-        $this->path = $path;
-        $this->filename = end(explode('/', $path));
-        $this->get_fileDate($path);
-        $this->extension = end(explode('.',$this->filename));
-        if ($this->extension == 'jpg') $this->filetype = 'photo';
-        elseif ($this->extension == 'png') $this->filetype = 'image';
-        elseif ($this->extension == 'txt') $this->filetyte = 'text';
-    }
-
-    public static function comparer($a, $b) {
-        return $a->date < $b->date;
-    }
-
-    public static function sorted($input) {
-        usort($input, 'ExperienceFile::comaprer');
-        return $input;
-    }
-
-    public function get_fileDate() {
-        if (strpos($this->filename,'-') != False) {
-            $parts = explode('-', $this->filename);
-            $parts = array_filter($parts, function ($x) {return is_numeric($x); });
-
-            $date = False;
-            $numParts = count($parts);
-            if ($numParts < 1 || $numParts > 3) {
-                $date = new DateTime(filectime($filename));
-                $formatter = 'jS M Y';
-            }
-            elseif ($numParts == 1) {
-                $date = new DateTime($parts[0] . '-1-1 0:0:0');
-                $formatter = 'Y';
-            }
-            elseif ($numParts == 2) {
-                $date = new DateTime($parts[0] . '-' . $parts[1] . '-1 0:0:0');
-                $formatter = 'M Y';
-            }
-            elseif ($numParts == 3) {
-                $date = new DateTime($parts[0] . '-' . $parts[1] . '-' . $parts[2] . ' 0:0:0');
-                $formatter = 'jS M Y';
-            }
-
-        }
-        else {
-            $date = new DateTime(date('c',filectime($this->path)));
-            $formatter = 'jS M Y';
-        }
-        $this->date = $date;
-        $this->dateString = $date->format($formatter);
-        return True;
-    }
-}
-
-
-class Experience {
-
-    public $files = Array();
-
-    public function __construct($url) {
-        $this->url = $url;
-        $this->path = url2path($url);
-        $tmp = unpack_path($url);
-        $this->dir = $tmp[count($tmp) - 1];
-        $vars = unpack_directory($this->dir);
-        if (count($vars) > 1) {
-	        $this->year = $vars[0];
-	        $this->month = $vars[1];
-	        $this->date = new DateTime($vars[0] . '-' . $vars[1] . '-1 0:0:0');
-	        $this->name = $vars[2];
-	        $this->description = $vars[3];
-	        $this->thumbnail = False;
-	        $this->images = False;
-        }
-        else {
-        	$this->name = $vars[0];
-        	$this->description = '';
-        	$this->thumbnail = False;
-        	$this->images = False;
-        	$this->date = new DateTime(date('c',filectime($this->path)));
-        }
-    }
-
-    public static function comaprer($a, $b) {
-    	if (isset($a->year) && isset($b->year)) {
-	        if ($a->year < $b->year) return True;
-	        elseif ($a->year > $b->year) return False;
-	        elseif (isset($a->month) && isset($b->month)) {
-	        	if ($a->month < $b->month) return True;
-	        	else return False;
-	        }
-	        elseif (isset($a->month)) return False;
-	        elseif (isset($b->month)) return True;
-    	}
-    	elseif (isset($a->year)) return False;
-    	elseif (isset($a->year)) return True;
-	    return False;
-    }
-
-    public static function sorted($input) {
-        usort($input, 'Experience::comaprer');
-        return $input;
-    }
-
-    public function get_images() {
-    	if ($this->images == False) {
-	    	$this->images = array_map(
-	    		function ($x) {
-	    			return str_replace('_thumb.jpg', '', $x);
-	    		},array_filter(get_photosInDir($this->path),
-	    		function($x) {
-	    			return strpos($x,'_thumb.jpg') != False;
-	    		}));
-    	}
-    	return $this->images;
-    }
-
-    public function populate_files() {
-        //Supported filetypes
-        $types = Array('images' => 'jpg',
-                       'texts' => 'txt');
-        foreach ($types AS $type => $extension) {
-            $files = $this->get_files($extension,True);
-            foreach ($files AS $file) {
-                array_push($this->files,new ExperienceFile($file));
-            }
-        }
-    }
-
-
-    public function get_files($extension, $addPath=False) {
-        return array_map(function ($x) use ($addPath) {
-            if ($addPath) return $this->path . '/' .  $x;
-            else return $x;
-        }, get_filesInDir($this->path, $extension));
-    }
-
-    public function create_imageThumbnail($image) {
-    	$box = new Content();
-    	$class = 'fancybox photo';
-    	if (strpos($image,'_p') != False) $class .= ' portrait';
-    	$wrapAttrs = array('href' => $this->url . '/' . $image . '_main.jpg',
-    			'class' => $class,
-    			'rel' => 'gallery',
-    			'title' => 'test');
-    	$box->append(img( url_www() . $this->url . '/' . $image . '_thumb.jpg',""));
-    	$box->wrap('a',$wrapAttrs);
-
-    	return $box;
-    }
-
-    public function get_thumbnails($element) {
-    	$images = $this->get_images();
-    	$out = array();
-    	foreach ($images as $image) {
-    		$element->append($this->create_imageThumbnail($image));
-    	}
-    }
-
-    public function get_thumbnail() {
-        if ($this->thumbnail != False) return $this->thumbnail;
-        else {
-            $thumbPath = $this->path.'/thumb_l.jpg';
-            if (is_file($thumbPath)) {
-                $this->thumbnail = path2url($thumbPath);
-                return $this->thumbnail;
-            }
-            else {
-                $thumbPath = $this->path.'/thumb_p.jpg';
-                if (is_file($thumbPath)) {
-                    $this->thumbnail = path2url($thumbPath);
-                    return $this->thumbnail;
-                }
-            }
-
-            $photos = get_photosInDir($this->path);
-            $photos = array_filter($photos,
-                    function ($x) {return strpos($x,'_thumb.jpg') !== False;});
-            if (count($photos) > 0) {
-
-
-                // Pick an image randomly from this directory
-                $newThumb = $photos[array_rand($photos,1)];
-
-                // Set the new thumbnail links name according to orientation
-                $thumbName = $this->path . '/thumb_p.jpg';
-                if (strpos($newThumb, '_p_') != -1) {
-                    $thumbName = $this->path . '/thumb_l.jpg';
-                }
-
-                // Link the thumbnail, set the objects thumbnail and return
-                symlink($this->path . '/' . $newThumb, $thumbName);
-                $this->thumbnail = path2url($thumbName);
-                return $this->thumbnail;
-            }
-            else return False;
-        }
-    }
-
-    public function displayBox() {
-
-        $box = new Content();
-        $box->span($this->name, array('class'=>'c5', 'style'=>'display: inline-block; width: 100%'));
-        $thumb = $this->get_thumbnail();
-        if ($thumb == False) $thumb = url_static() . '/noPhoto.png';
-        else $thumb = url_www() . $thumb;
-        $box->img($thumb, '');
-        $wrapAttrs = array('href' => $this->url,
-                           'class' => 'expBox mainFont bg_c4');
-        $box->wrap('a',$wrapAttrs);
-        //Find a thumbnail for the experience
-        return $box;
-    }
-}
+// function array_toDate($array) {
+//     $numParts = count($array);
+//     if ($numParts > 0 && $numParts < 4) {
+//         if ($numParts == 1) {
+//             $date = new DateTime($parts[0] . '-1-1 0:0:0');
+//             $formatter = 'Y';
+//         }
+//         elseif ($numParts == 2) {
+//             $date = new DateTime($parts[0] . '-' . $parts[1] . '-1 0:0:0');
+//             $formatter = 'M Y';
+//         }
+//         else {
+//             $date = new DateTime($parts[0] . '-' . $parts[1] . '-' . $parts[2] . ' 0:0:0');
+//             $formatter = 'jS M Y';
+//         }
+//         return Array('date'=>$date,
+//                      'formatter'=>$formatter);
+//     }
+//     else return False;
+// }
 
 function get_filesInDir($path, $extension='jpg') {
     return array_filter(scandir($path), function($x) use($extension) {
@@ -390,11 +212,6 @@ function unpack_directory($directory) {
     }
     return $out;
 }
-
-function unpack_path($path) {
-    return explode('/',$path);
-}
-
 
 
 function decomposeAlbumName() {

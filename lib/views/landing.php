@@ -2,7 +2,7 @@
 $p = new BasePage('Home', 'Personal website.', header_large(), footer());
 
 $a = new Content();
-$a->append(h2('Recently added:',array('class'=>'c_l2 mainFont')));
+$a->append(h2('Recently added:',array('class'=>'c2 mainFont')));
 
 $path = path_string();
 $subdirs = get_subdirs($path);
