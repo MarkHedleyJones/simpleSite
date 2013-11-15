@@ -117,7 +117,7 @@ class Experience extends Node {
     }
 
     public static function comaprer($a, $b) {
-        if ($a > $b) return True;
+        if ($a < $b) return True;
         else return False;
     }
 

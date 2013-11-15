@@ -7,6 +7,9 @@ define('ADMIN_USERNAME', '');
 define('ADMIN_PASSWORD','');
 define('FOOTER_TEXT', 'Source code for this site available from <a class="c1" href="https://github.com/markjones112358/website-base">github.com/markjones112358/website-base</a>');
 
+// Logo names - Logos live in /static
+define('LOGO_LARGE','identicon_210.png');
+define('LOGO_SMALL','identicon_105.png');
 
 # Colour theme:
 define('COLOR_0', '#000000');

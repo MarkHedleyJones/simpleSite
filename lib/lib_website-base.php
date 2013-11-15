@@ -30,7 +30,7 @@ function header_large() {
 	$h->append(div(NAME_OF_SITE, array('class'=>'title c1')));
 	$h->append(div(sitename(), array('class'=>'subtitle c3')));
 	$h->wrap('div', array('class'=>'right mainFont'));
-	$h->prepend(img( url_static() . '/identicon_210.png','Identicon'));
+	$h->prepend(href(img( url_static() . '/' . LOGO_LARGE,'Identicon'),'/'));
 	$h->wrap('div', array('id'=>'head'));
 	$c->append($h);
 
@@ -61,7 +61,7 @@ function header_small() {
 	$h->append(div(NAME_OF_SITE, array('class'=>'title c1')));
 	$h->append(div(sitename(), array('class'=>'subtitle c3')));
 	$h->wrap('div', array('class'=>'right mainFont'));
-	$h->prepend(img( url_static() . '/identicon_105.png','Identicon'));
+    $h->prepend(href(img( url_static() . '/' . LOGO_SMALL,'Identicon'),'/'));
 	$h->wrap('div', array('id'=>'head', 'class'=>'mini'));
 	$c->append($h);
 
@@ -106,51 +106,6 @@ class BasePage extends Page {
     }
 }
 
-// function date_fromString($string) {
-//     $parts = explode('-', $string);
-//     $parts = array_filter($parts, function ($x) {return is_numeric($x); });
-//     $date = False;
-//     $numParts = count($parts);
-//     if ($numParts == 1) {
-//         if (strlen($parts[0]) > 4) {
-//             // Contains date data non-delimited
-//             $str = $parts[0];
-//             if (strlen($str) == 6) {
-//                 $parts = Array(substr($str, 0, 4),
-//                                substr($str, 4, 6));
-//             }
-//             elseif (strlen($str) == 8) {
-//                 $parts = Array(substr($str, 0, 4),
-//                                substr($str, 4, 6),
-//                                substr($str, 6, 8));
-//             }
-//             else return False;
-//         }
-//         else $parts = Array($str);
-//     }
-//     return array_toDate($parts);
-// }
-
-// function array_toDate($array) {
-//     $numParts = count($array);
-//     if ($numParts > 0 && $numParts < 4) {
-//         if ($numParts == 1) {
-//             $date = new DateTime($parts[0] . '-1-1 0:0:0');
-//             $formatter = 'Y';
-//         }
-//         elseif ($numParts == 2) {
-//             $date = new DateTime($parts[0] . '-' . $parts[1] . '-1 0:0:0');
-//             $formatter = 'M Y';
-//         }
-//         else {
-//             $date = new DateTime($parts[0] . '-' . $parts[1] . '-' . $parts[2] . ' 0:0:0');
-//             $formatter = 'jS M Y';
-//         }
-//         return Array('date'=>$date,
-//                      'formatter'=>$formatter);
-//     }
-//     else return False;
-// }
 
 function get_filesInDir($path, $extension='jpg') {
     return array_filter(scandir($path), function($x) use($extension) {
