@@ -4,9 +4,9 @@ $p = new BasePage('Home',
                   header_small(),
                   footer());
 
-$p->add_css_reference( url_static() . '/fancybox/source/jquery.fancybox.css?v=2.1.5');
-$p->add_script_reference( url_static() . '/fancybox/source/jquery.fancybox.pack.js?v=2.1.5');
-$p->add_postscript('$(document).ready(function() {
+$p->style_reference( url_static() . '/fancybox/source/jquery.fancybox.css?v=2.1.5');
+$p->script_reference( url_static() . '/fancybox/source/jquery.fancybox.pack.js?v=2.1.5');
+$p->script_block('$(document).ready(function() {
     $(".fancybox").fancybox({
         openEffect  : "none",
         closeEffect : "none",

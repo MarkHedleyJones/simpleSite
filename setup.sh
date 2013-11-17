@@ -28,8 +28,8 @@ read -p "Path the watch folder: " path
 echo "The website will watch $path"
 echo ""
 
-echo "Linking /var/www/ to $install..."
-sudo ln -s $install /var/www/$name
+echo "Linking /var/www/$name to $install..."
+sudo ln -s $install /var/www/$name/
 echo "Done!"
 echo ""
 echo "Creating apache configuration file (/etc/apache2/sites-available/$name)..."
@@ -76,4 +76,14 @@ sudo echo "
 127.0.0.1        www.$url
 127.0.0.1        static.$url" >> /etc/hosts
 echo "Done!"
-
+echo ""
+echo "Fetching required PHP-HTMLifier library from github..."
+sudo rm -r lib/PHP-HTMLifier
+git clone https://github.com/markjones112358/PHP-HTMLifier lib/PHP-HTMLifier
+echo "Done!"
+echo ""
+echo "Linking the website to the watch folder ($path)"
+echo "$path" > pathOverride.txt
+echo "Done!"
+echo ""
+echo "Installation complete. You can view the website at http://www.$url"

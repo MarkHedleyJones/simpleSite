@@ -264,7 +264,7 @@ class Experience extends Node {
         if ($thumb == False) $thumb = url_static() . '/noPhoto.png';
         else $thumb = url_www() . $this->url . $thumb;
         $box->img($thumb, '');
-        $wrapAttrs = array('href' => $this->url,
+        $wrapAttrs = array('href' => clean_path($this->url),
                            'class' => 'expBox mainFont bg_c4');
         $box->wrap('a',$wrapAttrs);
         //Find a thumbnail for the experience
