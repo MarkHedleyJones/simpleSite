@@ -24,10 +24,12 @@ Then make sure the file matches the following. You can replace www.simpleWebsite
         DocumentRoot /var/www/website-base/public_html/
 
         <Directory /var/www/website-base/public_html>
-                Options Indexes FollowSymLinks MultiViews
+                Options -Indexes +FollowSymLinks MultiViews
                 AllowOverride None
                 Order allow,deny
                 allow from all
+                DirectoryIndex /index.php
+                FallbackResource /index.php
         </Directory>
 
         ErrorLog ${APACHE_LOG_DIR}/error.log
