@@ -6,6 +6,7 @@ function unpack_name($filename) {
     $strlen = strlen($filename);
     for ($i = 0; $i < $strlen; $i++) {
         if (is_numeric($filename[$i])) $lastDigitPos = $i + 1;
+        elseif (ctype_alpha($filename[$i])) break;
     }
     $date = substr($filename, 0, $lastDigitPos);
     $date = str_replace('-', '', $date);
@@ -76,7 +77,7 @@ class Node {
 
     public function __construct($location) {
         // Detect if location is url or path
-        if (strpos($location, $_SERVER['DOCUMENT_ROOT']) !== FALSE) {
+        if (strpos($location, BASE_PATH) !== FALSE) {
             $this->path = $location;
             $this->url = path2url($location);
         }
@@ -84,21 +85,109 @@ class Node {
             $this->url = $location;
             $this->path = url2path($location);
         }
-        $this->name = end(explode('/',$this->url));
+
+        if (substr($this->url, -1) == '/') $this->name = end(explode('/',substr($this->url,0,-1)));
+        else $this->name = end(explode('/', $this->url));
+
         $tmp = unpack_name($this->name);
         foreach ($tmp as $key => $value) $this->$key = $value;
+
+        if ($this->date == False) {
+            $this->date = new DateTime(date('c', filectime($this->path)));
+            $this->dateFormatter = 'jS M Y';
+            $this->year = $this->date->format('Y');
+            $this->month = $this->date->format('M');
+            $this->day = $this->date->format('d');
+        }
     }
 }
 
-class Event extends Node {
-    // Individual things that create an experience
-    // Ambiguity: Many events to one Experience
-    //
+class File extends Node {
+
+    public $extension;
 
     public function __construct($location) {
+        $this->extension = end(explode('.', $location));
         parent::__construct($location);
     }
+
+    public function render($accomodate_html=False) {
+        switch (strtolower($this->extension)) {
+            case 'html':
+                return div(file_get_contents($this->path),Array('class'=>'htmlBox'));
+                break;
+
+            case 'jpg':
+                if (File::is_cached($this->url) == False) {
+                    File::cache_image($this->url);
+                }
+                //return $this->as_thumbnail(($accomodate_html ? 'r' : False));
+                return $this->as_thumbnail();
+        }
+    }
+
+    public function name_thumbnail() {
+        return str_replace('.'.$this->extension, '_thumb.'.$this->extension, $this->url);
+    }
+
+    public function as_thumbnail($float=False) {
+        $c = new Content();
+        $attrs = array('href'=>$this->url,
+                'class' => 'fancybox photo',
+                'rel' => 'gallery',
+                'title' => $this->name);
+
+        if ($float != False) {
+            if ($float == 'r') {
+                $attrs['class'] .= ' fr';
+                $attrs['style'] = 'clear: right';
+            }
+            else {
+                $attrs['class'] .= ' fl';
+                $attrs['style'] = 'clear: left';
+            }
+        }
+
+        $c->append(img( $this->name_thumbnail(),""));
+        $c->wrap('a',$attrs);
+
+        return $c;
+    }
+
+    public function is_cached($url, $debug=False) {
+        $path = clean_path($_SERVER['DOCUMENT_ROOT'] . $url);
+        $cached = file_exists($path);
+        if ($debug){
+            print '<br><br>Checking for cached image in "' . $path . '"';
+            if ($cached === True) print '<br>Image cached';
+            else print '<br>Image not cached';
+        }
+        return $cached;
+    }
+
+    public function cache_image($url, $debug=False) {
+        $path_from = clean_path(BASE_PATH . $url);
+        $path_to = clean_path($_SERVER['DOCUMENT_ROOT'] . $url);
+        $command = "mkdir -p " . substr($path_to, 0, strrpos($path_to, '/', -1) + 1);
+        if ($debug) {
+            print '<br><br>Caching image from ' . $path_from . ' to ' . $path_to;
+            print '<br>Executing command: ' . $command;
+        }
+        exec($command);
+
+        // Create web rescaled image
+        $command = "convert " . $path_from . " -resize '1024x768>' " . $path_to;
+        if ($debug) print '<br>Executing command: ' . $command;
+        exec($command);
+
+        // Create thumbnail
+        $command = "convert " . $path_from . " -resize '256' " . str_replace('.'.$this->extension, '_thumb.'.$this->extension, $path_to);
+        if ($debug) print '<br>Executing command: ' . $command;
+        exec($command);
+
+    }
 }
+
 
 class Experience extends Node {
     // A collection of events
@@ -107,119 +196,64 @@ class Experience extends Node {
 
     public $files;
     public $thumbnail;
-    public $images;
+    public $contains_html;
 
     public function __construct($location) {
         $this->thumbnail = False;
-        $this->images = False;
         $this->files = Array();
+        $this->contains_html = False;
         parent::__construct($location);
     }
 
-    public static function comaprer($a, $b) {
-        if ($a < $b) return True;
-        else return False;
-    }
-
-
-    public static function sorted($input) {
-        usort($input, 'Experience::comaprer');
-        return $input;
-    }
-
-    public function get_images() {
-        if ($this->images == False) {
-            $this->images = array_map(
-                function ($x) {
-                    return str_replace('_thumb.jpg', '', $x);
-                },array_filter(get_photosInDir($this->path),
-                function($x) {
-                    return strpos($x,'_thumb.jpg') != False;
-                }));
+    public function render() {
+        $c = new Content();
+        $this->populate_files();
+        $imgs = 0;
+        // Render html files if any
+        if ($this->contains_html) {
+            foreach ($this->files AS $file) {
+                if (strtolower($file->extension) == 'html') {
+                    $c->append($file->render($this->contains_html));
+                }
+            }
         }
-        return $this->images;
+        foreach ($this->files AS $file) {
+            if (strtolower($file->extension) == 'jpg') {
+                if ($this->contains_html && $imgs < 3) {
+                    $c->prepend($file->render($this->contains_html));
+                    ++$imgs;
+                }
+                else {
+                    $c->append($file->render($this->contains_html));
+                }
+            }
+        }
+        return $c;
     }
 
-    public function populate_files() {
+    public function populate_files($type=False) {
         //Supported filetypes
         $types = Array('images' => 'jpg',
-                       'texts' => 'txt');
+                       'texts' => 'txt',
+                       'html' => 'html');
+
+        //Filter down to passed type
+        if ($type != False) $types = Array($type => $types[$type]);
+
         foreach ($types AS $type => $extension) {
             $files = $this->get_files($extension,True);
             foreach ($files AS $file) {
-                array_push($this->files,new Event($file));
+                if ($type == 'html') $this->contains_html = True;
+                array_push($this->files,new File($file));
             }
         }
     }
-
 
     public function get_files($extension, $addPath=False) {
         return array_map(function ($x) use ($addPath) {
-            if ($addPath) return $this->path . '/' .  $x;
+            if ($addPath) return $this->path .  $x;
             else return $x;
         }, get_filesInDir($this->path, $extension));
-    }
-
-    public function create_imageThumbnail($image) {
-        $box = new Content();
-        $class = 'fancybox photo';
-        if (strpos($image,'_p') != False) $class .= ' portrait';
-        $wrapAttrs = array('href' => $this->url . '/' . $image . '_main.jpg',
-                'class' => $class,
-                'rel' => 'gallery',
-                'title' => 'test');
-        $box->append(img( url_www() . $this->url . '/' . $image . '_thumb.jpg',""));
-        $box->wrap('a',$wrapAttrs);
-
-        return $box;
-    }
-
-    public function get_thumbnails($element) {
-        $images = $this->get_images();
-        $out = array();
-        foreach ($images as $image) {
-            $element->append($this->create_imageThumbnail($image));
-        }
-    }
-
-    public function get_thumbnail() {
-        if ($this->thumbnail != False) return $this->thumbnail;
-        else {
-            $thumbPath = $this->path.'/thumb_l.jpg';
-            if (is_file($thumbPath)) {
-                $this->thumbnail = path2url($thumbPath);
-                return $this->thumbnail;
-            }
-            else {
-                $thumbPath = $this->path.'/thumb_p.jpg';
-                if (is_file($thumbPath)) {
-                    $this->thumbnail = path2url($thumbPath);
-                    return $this->thumbnail;
-                }
-            }
-
-            $photos = get_photosInDir($this->path);
-            $photos = array_filter($photos,
-                    function ($x) {return strpos($x,'_thumb.jpg') !== False;});
-            if (count($photos) > 0) {
-
-
-                // Pick an image randomly from this directory
-                $newThumb = $photos[array_rand($photos,1)];
-
-                // Set the new thumbnail links name according to orientation
-                $thumbName = $this->path . '/thumb_p.jpg';
-                if (strpos($newThumb, '_p_') != -1) {
-                    $thumbName = $this->path . '/thumb_l.jpg';
-                }
-
-                // Link the thumbnail, set the objects thumbnail and return
-                symlink($this->path . '/' . $newThumb, $thumbName);
-                $this->thumbnail = path2url($thumbName);
-                return $this->thumbnail;
-            }
-            else return False;
-        }
     }
 
     public function displayBox() {
@@ -228,7 +262,7 @@ class Experience extends Node {
         $box->span($this->title, array('class'=>'c5', 'style'=>'display: inline-block; width: 100%'));
         $thumb = $this->get_thumbnail();
         if ($thumb == False) $thumb = url_static() . '/noPhoto.png';
-        else $thumb = url_www() . $thumb;
+        else $thumb = url_www() . $this->url . $thumb;
         $box->img($thumb, '');
         $wrapAttrs = array('href' => $this->url,
                            'class' => 'expBox mainFont bg_c4');
@@ -236,4 +270,87 @@ class Experience extends Node {
         //Find a thumbnail for the experience
         return $box;
     }
+
+
+    public function get_thumbnail() {
+        $images = $this->get_files('jpg');
+        $maxChars = 0;
+        $maxImg = '';
+        foreach ($images as $image) {
+            $strlen = strlen($image);
+            $count = 0;
+            for ($i = 0; $i < $strlen; $i++) {
+                if (ctype_alpha($image[$i])) $count++;
+            }
+            if ($count > $maxChars) {
+                $maxChars  = $count;
+                $maxImg = $image;
+            }
+        }
+        if ($maxImg != '') {
+            $name = explode('.', $maxImg);
+            return $name[0] . '_thumb.' . $name[1];
+        }
+        else return False;
+    }
+}
+
+class ExperienceList {
+
+    public $experiences;
+
+    public function __construct() {
+
+        $subdirs = array_map(function ($x) {return str_replace('/', '', $x);},get_subdirs('/'));
+
+        $this->experiences = Array();
+        foreach ($subdirs AS $type) $this->experiences[$type] = Array();
+
+        foreach ($subdirs as $type) {
+            $path = '/' . $type . '/';
+            $experiences = get_subdirs($path);
+            $index = array_map(function ($x) use ($path) {return str_replace($path, '', $x);}, $experiences);
+            foreach ($index as $name) {
+                array_push($this->experiences[$type], new Experience($path . $name));
+            }
+        }
+    }
+
+    public function get_experience($type, $name) {
+        foreach ($this->experiences[$type] as $experience) {
+            if ($experience->name == $name) return $experience;
+        }
+        return False;
+    }
+
+    public function types() {
+        return array_keys($this->experiences);
+    }
+
+    public function get_all() {
+        $all = Array();
+        foreach ($this->types() AS $expType) $all = array_merge($all, $this->experiences[$expType]);
+        return $all;
+    }
+
+    public function mostRecent($num) {
+        return first($num, ExperienceList::ordered_byDate($this->get_all()));
+    }
+
+    public static function ordered_byDate($array) {
+        return ExperienceList::sorted($array);
+    }
+
+
+    public static function comaprer($a, $b) {
+        if ($a->date < $b->date) return True;
+        else return False;
+    }
+
+
+    public static function sorted($input) {
+        usort($input, 'ExperienceList::comaprer');
+        return $input;
+    }
+
 }

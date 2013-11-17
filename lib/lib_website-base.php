@@ -21,7 +21,15 @@ function url_static() {
 	return 'http://static.' . sitename() . tld();
 }
 
-function header_large() {
+function first($num, $array) {
+    return array_slice($array, 0, $num);
+}
+
+function last($num, $array) {
+    return array_slice($array, -1 * $num);
+}
+
+function header_large($navLinks) {
 
 	$c = new Content();
 
@@ -36,12 +44,10 @@ function header_large() {
 
 	// Create center navigation strip
 	$n = new Content();
-	$path = path_string();
-	$dirs = get_subdirs($path);
 
 	$list = new UnorderedList(array('class'=>'c_l1'));
-	foreach ($dirs as $dir) {
-		$list->append(href(ucfirst(substr($dir,1)),$dir));
+	foreach ($navLinks as $link) {
+		$list->append(href(ucfirst($link),'/' . $link));
 	}
 	$n->append($list);
 	$n->wrap('div', array('class'=>'navbanner mainFont bg_c3 bdr_c2 a_c2 ahover_c1'));
@@ -52,7 +58,7 @@ function header_large() {
 }
 
 function header_small() {
-	$location = path_array();
+	$location = url_array();
 
 	$c = new Content();
 
@@ -87,6 +93,7 @@ class BasePage extends Page {
 
 	public $header;
 	public $footer;
+    public $navLinks;
 
     public function __construct($title, $description, $header=False, $footer=False) {
         parent::__construct($title . ' | ' . sitename(), $description);
@@ -122,36 +129,66 @@ function get_photosInDir($path) {
 }
 
 
-function url2path($url) {
-    return substr($_SERVER['DOCUMENT_ROOT'],0, count($_SERVER['DOCUMENT_ROOT']) - 2)  . $url;
+function url2path($url, $debug=False) {
+    $out = str_replace('//','/', BASE_PATH . $url);
+    if ($debug) print '<br><br>url2path url = "' . $url . '" -> path = ' . $out;
+    return $out;
 }
 
-function path2url($dir) {
-    return str_replace($_SERVER['DOCUMENT_ROOT'], '/', $dir);
+function path2url($dir, $debug=False) {
+    $out = str_replace(BASE_PATH, '/', $dir);
+    if ($debug) print '<br><br>path2url path = "' . $dir . '" -> url = ' . $out;
+    return $out;
+}
+
+function clean_path($path, $debug=False) {
+    if ($debug) print '<br><br>clean_path called with ' . $path;
+    $out = str_replace('//', '/', $path);
+    if ($debug) print '<br>return = ' . $out;
+    return $out;
+}
+
+function url_string() {
+    $out = $_SERVER['REQUEST_URI'];
+    if (substr($out, -1) != '/') return $out . '/';
+    else return $out;
+}
+
+function path_string() {
+    return url2path(url_string());
 }
 
 function get_subdirs($path,$debug=False) {
-    if ($debug) print '<br>called with path = ' . $path . '<br>';
+    if ($debug) print '<br><br>get_subdirs called with with "' . $path . '"';
+    $path = clean_path($path);
     $realPath = url2path($path);
-    if ($debug) print 'realpath = ' . $realPath . '<br>';
-    $subdirs = scandir($realPath);
+
+    $subdirs = array_map(function ($x) {return $x . '/';}, array_filter(scandir($realPath), function($x) {return $x[0] != '.';}));
+    if ($debug) {
+        print '<br>subdirs = ';
+        print_r($subdirs);
+    }
+
     $urlSubdirs = array();
-    if ($debug) print '<br><br>enteringloog<br><br>';
+    if ($debug) print '<br>entering loop:';
     foreach ($subdirs as $subdir) {
-        if ($debug) print 'subdir = ' . $subdir . '<br>';
-        $realSubdir = url2path($path . '/' . $subdir);
-        if ($debug) print 'realsubdir = ' . $realSubdir . '<br>';
+        if ($debug) print '<br>scanning subdir = "' . $subdir . '"';
+        $realSubdir = url2path($path . $subdir);
+        if ($debug) print '<br>realsubdir = "' . $realSubdir . '"';
 
         if ($subdir[0] != '.' && is_dir($realSubdir)) {
-            if ($debug) print 'pushed this !!!!!<br>';
+            if ($debug) print '<br>pushed ' . $realSubdir;
             array_push($urlSubdirs, path2url($realSubdir));
         }
         else {
-            if ($debug) print 'not adding this <br>';
+            if ($debug) print '<br>not added (' . $realSubdir . ')';
         }
     }
-    if ($debug) print 'returning ';
-    if ($debug) print '<br>';
+    if ($debug) {
+        print '<br>exited loop, returning';
+        print_r($urlSubdirs);
+    }
+
     return $urlSubdirs;
 }
 
@@ -201,21 +238,25 @@ function formatPathURL($path, $element) {
     $element->br();
 }
 
-function path_string() {
-	return substr($_SERVER['REQUEST_URI'],0,-1);
-	#return substr($_SERVER['DOCUMENT_ROOT'] . $_SERVER['REQUEST_URI'],0,-1);
-    #return str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']);
-}
-
 
 /**
  * Returns an array containing the current folder path
  * @return multitype:
  */
-function path_array() {
-    $url = $_SERVER['REQUEST_URI'];
+function url_array($debug=False) {
+    if ($debug) print '<br>path_array requested';
+    $url = url_string();
+    if ($debug) print '<br>url = ' . $url;
     $path = explode('/', $url);
+    if ($debug) {
+        print '<br>raw path array = ';
+        print_r($path);
+    }
     $out = array_slice($path,1, count($path)-2);
+    if ($debug) {
+        print '<br>output array = ';
+        print_r($out);
+    }
     return $out;
 }
 

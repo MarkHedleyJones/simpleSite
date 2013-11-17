@@ -1,9 +1,5 @@
 @CHARSET "UTF-8";
 
-* {
-	padding: 0;
-	margin: 0;
-}
 
 html {
 	padding: 0;
@@ -143,6 +139,7 @@ body {
 	display: block;
 	margin: 0 auto 100px auto;
 	height: 100%;
+    width: 960px;
 }
 
 #footer {
@@ -157,15 +154,11 @@ body {
 }
 
 
-h2 {
-    text-align: center;
+h1, h2, h3, h4 {
     font-weight: 500;
+    font-family: 'Merriweather Sans', sans-serif;
 }
 
-h1 {
-    text-align: center;
-    font-weight: 500;
-}
 
 .mainFont {
 	font-family: 'Merriweather Sans', sans-serif;
@@ -253,15 +246,26 @@ h1 {
 }
 
 .photo {
-	box-shadow: 2px 2px 4px 0px #777777;
+	box-shadow: 0px 0px 8px 2px #777777;
     -moz-box-shadow: 2px 2px 4px 0px #777777;
     -webkit-box-shadow: 2px 2px 4px 0px #777777;
+    padding: 8px 8px 4px 8px;
     border-style: solid;
-	border-width: 2px;
+	border-width: 1px;
+    border-color: #A6A6A6;
 	display: inline-block;
 	margin: 20px;
 	width: 256px;
-	height: 196px;
+	height: auto;
+    outline: none;
+}
+
+.htmlBox {
+    float: left;
+    width: 636px;
+    display: inline-block;
+    text-align: left;
+    margin-bottom: 110px;
 }
 
 .photo.portrait {
