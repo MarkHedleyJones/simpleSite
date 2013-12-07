@@ -5,7 +5,7 @@ date_default_timezone_set('Pacific/Auckland');
 define('NAME_OF_SITE','My Website');
 define('ADMIN_USERNAME', '');
 define('ADMIN_PASSWORD','');
-define('FOOTER_TEXT', 'Source code for this site available from <a class="c1" href="https://github.com/markjones112358/website-base">github.com/markjones112358/website-base</a>');
+define('FOOTER_TEXT', 'Source code for this site available from <a class="c1" href="https://github.com/markjones112358/simpleSite">github.com/markjones112358/simpleSite</a>');
 
 // Logo names - Logos live in /static
 define('LOGO_LARGE','identicon_210.png');
