@@ -79,11 +79,11 @@ class Node {
         // Detect if location is url or path
         if (strpos($location, BASE_PATH) !== FALSE) {
             $this->path = $location;
-            $this->url = path2url($location);
+            $this->url = clean_path(path2url($location));
         }
         else {
             $this->url = $location;
-            $this->path = url2path($location);
+            $this->path = clean_path(url2path($location));
         }
 
         if (substr($this->url, -1) == '/') $this->name = end(explode('/',substr($this->url,0,-1)));
@@ -118,8 +118,8 @@ class File extends Node {
                 break;
 
             case 'jpg':
-                if (File::is_cached($this->url) == False) {
-                    File::cache_image($this->url);
+                if ($this->is_cached() == False) {
+                    $this->cache_image();
                 }
                 //return $this->as_thumbnail(($accomodate_html ? 'r' : False));
                 return $this->as_thumbnail();
@@ -127,7 +127,7 @@ class File extends Node {
     }
 
     public function name_thumbnail() {
-        return str_replace('.'.$this->extension, '_thumb.'.$this->extension, $this->url);
+        return clean_path(str_replace('.'.$this->extension, '_thumb.'.$this->extension, $this->url));
     }
 
     public function as_thumbnail($float=False) {
@@ -154,8 +154,14 @@ class File extends Node {
         return $c;
     }
 
-    public function is_cached($url, $debug=False) {
-        $path = clean_path($_SERVER['DOCUMENT_ROOT'] . $url);
+    public function get_thumbnail() {
+        if ($this->is_cached() == False) $this->cache_image();
+        return $this->name_thumbnail();
+    }
+
+
+    public function is_cached($debug=False) {
+        $path = clean_path($_SERVER['DOCUMENT_ROOT'] . $this->url);
         $cached = file_exists($path);
         if ($debug){
             print '<br><br>Checking for cached image in "' . $path . '"';
@@ -165,9 +171,9 @@ class File extends Node {
         return $cached;
     }
 
-    public function cache_image($url, $debug=False) {
-        $path_from = clean_path(BASE_PATH . $url);
-        $path_to = clean_path($_SERVER['DOCUMENT_ROOT'] . $url);
+    public function cache_image($debug=False) {
+        $path_from = clean_path(BASE_PATH . $this->url);
+        $path_to = clean_path($_SERVER['DOCUMENT_ROOT'] . $this->url);
         $command = "mkdir -p " . substr($path_to, 0, strrpos($path_to, '/', -1) + 1);
         if ($debug) {
             print '<br><br>Caching image from ' . $path_from . ' to ' . $path_to;
@@ -260,9 +266,9 @@ class Experience extends Node {
 
         $box = new Content();
         $box->span($this->title, array('class'=>'c5', 'style'=>'display: inline-block; width: 100%'));
-        $thumb = $this->get_thumbnail();
-        if ($thumb == False) $thumb = url_static() . '/noPhoto.png';
-        else $thumb = url_www() . $this->url . $thumb;
+        $thumbnail = $this->get_thumbnail();
+        if ($thumbnail == False) $thumb = url_static() . '/noPhoto.png';
+        else $thumb = $thumbnail->get_thumbnail();
         $box->img($thumb, '');
         $wrapAttrs = array('href' => clean_path($this->url),
                            'class' => 'expBox mainFont bg_c4');
@@ -289,7 +295,9 @@ class Experience extends Node {
         }
         if ($maxImg != '') {
             $name = explode('.', $maxImg);
-            return $name[0] . '_thumb.' . $name[1];
+            $imgName = $name[0] . '.' . $name[1];
+            return new File($this->path . $imgName);
+
         }
         else return False;
     }

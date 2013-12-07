@@ -82,6 +82,11 @@ echo "Enabling new website configuration in Apache..."
 sudo a2ensite $name
 echo "Done!"
 echo ""
+echo "Setting www-data group write permissions on public_html folder..."
+chgrp www-data public_html -R
+chmod 775 public_html -R
+echo "Done!"
+echo ""
 echo "Restarting Apache with new configuration loaded..."
 sudo service apache2 restart
 echo "Done!"
