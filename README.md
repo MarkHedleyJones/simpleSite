@@ -7,11 +7,9 @@ Installation
 
 ## Quick install - Debian / Ubuntu / Mint:
 
-Download and extract the zip file (or clone this repository using git) into the directory you wish it to run from. 
+Download and extract the zip file (or clone this repository using git) into the directory you wish it to install the website.
 
-*The installation directory does not have to be anywhere special - during setup you will be asked to provide the path to the folder that you wish to watch.*
-
-Using a terminal, move into the unpacked folder and execute `sudo sh setup.sh` to begin the install process.
+Using a terminal, move into the installation folder and execute `sudo sh setup.sh` to begin the install process.
 
 ## Manual install
 
