@@ -1,35 +1,51 @@
 #! /bin/bash
-
+if [ ! -w "/etc/apache2/sites-available" ]
+then
+    echo "This script requires elevated priveledges - run with sudo"
+    exit
+fi
 install=`pwd`
-echo "The website will be installed in the current directory ($install)."
+echo "The website will run from the current directory ($install)."
 echo ""
-echo "Give the website a name (e.g. mywebsite)"
-echo "ATTENTION: This is not the domain name, leave off any www. or .com"
+read -p "Enter the url for this website: " url
+echo ""
+if [ `echo "$url" | grep -c '\.'` -eq 0 ]
+then
+    echo "The url must include a top-level domain (e.g. .com)"
+    exit
+fi
+url=`echo "$url" | sed 's/www.//'`
+echo "Main site will be installed as www.$url"
+echo "With a static subdomain of static.$url"
 echo ""
 read -p "Enter a name for the website: " name
 echo "The website will be called $name" 
 echo ""
-echo "When setting up a website in apache (the webserver) it is advised"
-echo "to enter the email address of the websites administrator"
-echo ""
 read -p "Enter your email address: " email
 echo ""
-echo "Give the website its url in the form of domain.tld (e.g. mywebsite.co.nz)."
-echo "ATTENTION: Dont start with www. (or similar), this is added automatically"
-echo ""
-read -p "Enter the url of the website: " url
-echo "Website will be installed as www.$url"
-echo ""
-echo "This website works by watching a folder and displaying its contents as part of the website"
-echo "You need to select this folder now (e.g. /home/mark/websiteStuff)"
-echo ""
-echo "ATTENTION: Use full pathnames"
-read -p "Path the watch folder: " path
+echo "The website watches and displays the content of a given folder."
+read -p "Enter the full path to the watch folder: " path
 echo "The website will watch $path"
 echo ""
-
+if [ -e "$path" ]
+then
+    if [ -d "$path" ]
+    then
+        echo "Directory found"
+    else
+        echo "Path not a directory"
+        exit
+    fi
+else
+    echo "Path not found"
+    exit
+fi
 echo "Linking /var/www/$name to $install..."
-sudo ln -s $install /var/www/$name/
+if [ -e "/var/www/$name" ]
+then
+    sudo rm "/var/www/$name"
+fi
+sudo ln -sf $install/ /var/www/$name
 echo "Done!"
 echo ""
 echo "Creating apache configuration file (/etc/apache2/sites-available/$name)..."
@@ -70,13 +86,15 @@ echo "Restarting Apache with new configuration loaded..."
 sudo service apache2 restart
 echo "Done!"
 echo ""
-echo "Adding link in hosts file to allow local viewing of website (/etc/hosts)..."
-sudo echo "
-# This line added by installer for $name
+if [ `grep -c "www.$url" /etc/hosts` -eq 0 ]
+then
+    echo "Adding link in hosts file to allow local viewing of website (/etc/hosts)..."
+    sudo echo "
 127.0.0.1        www.$url
 127.0.0.1        static.$url" >> /etc/hosts
-echo "Done!"
-echo ""
+    echo "Done!"
+    echo ""
+fi
 echo "Fetching required PHP-HTMLifier library from github..."
 sudo rm -r lib/PHP-HTMLifier
 git clone https://github.com/markjones112358/PHP-HTMLifier lib/PHP-HTMLifier
