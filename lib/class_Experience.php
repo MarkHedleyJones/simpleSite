@@ -77,7 +77,7 @@ class Node {
 
     public function __construct($location) {
         // Detect if location is url or path
-        if (strpos($location, BASE_PATH) !== FALSE) {
+        if (strpos($location, PATH_WATCH) !== FALSE) {
             $this->path = $location;
             $this->url = clean_path(path2url($location));
         }
@@ -172,7 +172,7 @@ class File extends Node {
     }
 
     public function cache_image($debug=False) {
-        $path_from = clean_path(BASE_PATH . $this->url);
+        $path_from = clean_path(PATH_WATCH . $this->url);
         $path_to = clean_path($_SERVER['DOCUMENT_ROOT'] . $this->url);
         $command = "mkdir -p " . substr($path_to, 0, strrpos($path_to, '/', -1) + 1);
         if ($debug) {

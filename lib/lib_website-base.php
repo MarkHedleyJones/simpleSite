@@ -130,13 +130,13 @@ function get_photosInDir($path) {
 
 
 function url2path($url, $debug=False) {
-    $out = str_replace('//','/', BASE_PATH . $url);
+    $out = str_replace('//','/', PATH_WATCH . $url);
     if ($debug) print '<br><br>url2path url = "' . $url . '" -> path = ' . $out;
     return $out;
 }
 
 function path2url($dir, $debug=False) {
-    $out = str_replace(BASE_PATH, '/', $dir);
+    $out = str_replace(PATH_WATCH, '/', $dir);
     if ($debug) print '<br><br>path2url path = "' . $dir . '" -> url = ' . $out;
     return $out;
 }
