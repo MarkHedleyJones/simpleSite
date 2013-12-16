@@ -1,5 +1,5 @@
 <?php
-include('../settings.php'); 
+include(dirname($_SERVER['DOCUMENT_ROOT']) . '/config.php');
 header("Content-type: text/css; charset: UTF-8");
 ?>
 

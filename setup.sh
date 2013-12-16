@@ -7,31 +7,56 @@ fi
 install=`pwd`
 echo "The website will run from the current directory ($install)."
 echo ""
-read -p "Enter the url for this website: " url
+echo "This website will use two subdomains. One for dynamic content (pages etc.)"
+echo "and one for static content (images and javascript etc.)."
 echo ""
-if [ `echo "$url" | grep -c '\.'` -eq 0 ]
+echo "The url for dynamic content is usually 'www' (full url: www.domain.com)"
+echo "and static is usually 'static' (full url: static.domain.com)."
+echo ""
+read -p "Enter the full url for this website's dynamic content: " url_content
+echo ""
+if [ `echo "$url_content" | grep -c '\.'` -eq 0 ]
 then
     echo "The url must include a top-level domain (e.g. .com)"
     exit
 fi
-url=`echo "$url" | sed 's/www.//'`
-echo "Main site will be installed as www.$url"
-echo "With a static subdomain of static.$url"
+read -p "Enter the full url for this website's static content: " url_static
+echo ""
+if [ `echo "$url_static" | grep -c '\.'` -eq 0 ]
+then
+    echo "The url must include a top-level domain (e.g. .com)"
+    exit
+fi
+
+echo "Main site will be installed as www.$url_content"
+echo "With a static subdomain of static.$url_static"
 echo ""
 read -p "Enter a name for the website: " name
-echo "The website will be called $name" 
+echo "The website will be called $name"
+echo ""
+echo "TIP: You may add any alias website names to /etc/apache2/sites-available/$name,"
+echo "     after which you will need to restart apache (sudo service apache2 restart)."
 echo ""
 read -p "Enter your email address: " email
 echo ""
 echo "The website watches and displays the content of a given folder."
 read -p "Enter the full path to the watch folder: " path
 echo "The website will watch $path"
+echo "TIP: Website settings are stored in $path/siteSettings,"
+echo "     modify this file to alter the website style"
 echo ""
 if [ -e "$path" ]
 then
     if [ -d "$path" ]
     then
         echo "Directory found"
+        echo "Creating site configuration folder at location"
+        mkdir $path/siteSettings
+        chgrp www-data $path/siteSettings
+        chmod 755 $path/siteSettings
+        cp settings.php $path/siteSettings
+        cp static/logo_large.png $path/siteSettings
+        cp static/logo_small.png $path/siteSettings
     else
         echo "Path not a directory"
         exit
@@ -51,9 +76,9 @@ echo ""
 echo "Creating apache configuration file (/etc/apache2/sites-available/$name)..."
 sudo echo "<VirtualHost *:80>
     ServerAdmin $email
-    ServerName www.$url
+    ServerName $url_content
     DocumentRoot /var/www/$name/public_html/
-            
+
     <Directory /var/www/$name/public_html>
         Options -Indexes +FollowSymLinks MultiViews
         AllowOverride None
@@ -66,9 +91,9 @@ sudo echo "<VirtualHost *:80>
 
 <VirtualHost *:80>
     ServerAdmin $email
-    ServerName static.$url
+    ServerName $url_static
     DocumentRoot /var/www/$name/static/
-    
+
     <Directory /var/www/$name/static/>
         Options -Indexes +FollowSymLinks MultiViews
         AllowOverride None
@@ -91,12 +116,12 @@ echo "Restarting Apache with new configuration loaded..."
 sudo service apache2 restart
 echo "Done!"
 echo ""
-if [ `grep -c "www.$url" /etc/hosts` -eq 0 ]
+if [ `grep -c "$url_content" /etc/hosts` -eq 0 ]
 then
     echo "Adding link in hosts file to allow local viewing of website (/etc/hosts)..."
     sudo echo "
-127.0.0.1        www.$url
-127.0.0.1        static.$url" >> /etc/hosts
+127.0.0.1        $url_content
+127.0.0.1        $url_static" >> /etc/hosts
     echo "Done!"
     echo ""
 fi
@@ -109,4 +134,4 @@ echo "Linking the website to the watch folder ($path)"
 echo "$path" > pathOverride.txt
 echo "Done!"
 echo ""
-echo "Installation complete. You can view the website at http://www.$url"
+echo "Installation complete. You can view the website at http://$url_content"
