@@ -48,7 +48,7 @@ then
     if [ -d "$path" ]
     then
         echo "Directory found"
-        if [ !-e "$path/.siteSettings" ]
+        if [ ! -e "$path/.siteSettings" ]
         then
             echo "Creating site configuration folder at location"
             mkdir $path/.siteSettings
@@ -56,19 +56,19 @@ then
             chmod 755 $path/.siteSettings
         fi
 
-        if [ !-e "$path/.siteSettings/settings.php" ]
+        if [ ! -e "$path/.siteSettings/settings.php" ]
         then
             echo "Copying site settings to sittings folder"
             cp settings.php $path/.siteSettings
         fi
 
-        if [ !-e "$path/.siteSettings/logo_large.png" ]
+        if [ ! -e "$path/.siteSettings/logo_large.png" ]
         then
             echo "Copying default logo (large) to sittings folder"
             cp static/logo_large.png $path/.siteSettings
         fi
 
-        if [ !-e "$path/.siteSettings/logo_small.png" ]
+        if [ ! -e "$path/.siteSettings/logo_small.png" ]
         then
             echo "Copying default logo (small) to sittings folder"
             cp static/logo_small.png $path/.siteSettings
