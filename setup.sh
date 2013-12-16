@@ -53,7 +53,7 @@ then
             echo "Creating site configuration folder at location"
             mkdir $path/.siteSettings
             chgrp www-data $path/.siteSettings
-            chmod 755 $path/.siteSettings
+            chmod 754 $path/.siteSettings
         fi
 
         if [ ! -e "$path/.siteSettings/settings.php" ]
@@ -125,10 +125,10 @@ sudo a2ensite $name
 echo "Done!"
 echo ""
 echo "Setting www-data group write permissions on public_html folder..."
-chgrp www-data public_html -R
-chmod 774 public_html -R
 chgrp www-data . -R
 chmod 754 . -R
+chgrp www-data public_html -R
+chmod 774 public_html -R
 echo "Done!"
 echo ""
 echo "Restarting Apache with new configuration loaded..."
