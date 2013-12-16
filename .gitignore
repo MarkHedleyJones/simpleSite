@@ -12,3 +12,4 @@
 .settings
 .pydevproject
 config.php
+public_html/*

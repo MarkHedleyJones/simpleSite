@@ -5,15 +5,14 @@ define('ROOT_URL', 'http://' . $_SERVER['HTTP_HOST']);
 
 
 function sitename() {
-	$parts = explode('.',$_SERVER['HTTP_HOST']);
-	return $parts[1];
+	return $_SERVER['HTTP_HOST'];
 }
 
 function tld() {
 	return str_replace('www.' . sitename(), '', $_SERVER['HTTP_HOST']);
 }
 
-function url_www() {
+function url_content() {
 	return 'http://' . URL_CONTENT;
 }
 
@@ -38,7 +37,7 @@ function header_large($navLinks) {
 	$h->append(div(NAME_OF_SITE, array('class'=>'title c1')));
 	$h->append(div(sitename(), array('class'=>'subtitle c3')));
 	$h->wrap('div', array('class'=>'right mainFont'));
-	$h->prepend(href(img( url_static() . '/' . LOGO_LARGE,'Identicon'),'/'));
+	$h->prepend(href(img( url_static() . '/' . LOGO_LARGE,'Site logo'),'/'));
 	$h->wrap('div', array('id'=>'head'));
 	$c->append($h);
 
@@ -50,7 +49,7 @@ function header_large($navLinks) {
 		$list->append(href(ucfirst($link),'/' . $link));
 	}
 	$n->append($list);
-	$n->wrap('div', array('class'=>'navbanner mainFont bg_c3 bdr_c2 a_c2 ahover_c1'));
+	$n->wrap('div', array('class'=>'navbanner mainFont bg_c3 bdr_c3 a_c2 ahover_c1'));
 
 	$c->append($n);
 	$c->wrap('div', array('id'=>'header', 'class'=>'bg_c4'));
@@ -67,7 +66,7 @@ function header_small() {
 	$h->append(div(NAME_OF_SITE, array('class'=>'title c1')));
 	$h->append(div(sitename(), array('class'=>'subtitle c3')));
 	$h->wrap('div', array('class'=>'right mainFont'));
-    $h->prepend(href(img( url_static() . '/' . LOGO_SMALL,'Identicon'),'/'));
+    $h->prepend(href(img( url_static() . '/' . LOGO_SMALL,'Site logo'),'/'));
 	$h->wrap('div', array('id'=>'head', 'class'=>'mini'));
 	$c->append($h);
 
@@ -221,7 +220,7 @@ function decomposeAlbumName() {
  * @param [HTML ELEMENT] $element - The page object to which the path is added
  */
 function formatPathURL($path, $element) {
-    $full = 'http://' . ROOT_NAME . '/';
+    $full = url_content() . '/';
     $len = count($path);
     $element->href(sitename(),$full);
     if ($len > 0) {

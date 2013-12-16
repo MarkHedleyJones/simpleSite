@@ -48,13 +48,32 @@ then
     if [ -d "$path" ]
     then
         echo "Directory found"
-        echo "Creating site configuration folder at location"
-        mkdir $path/.siteSettings
-        chgrp www-data $path/.siteSettings
-        chmod 755 $path/.siteSettings
-        cp settings.php $path/.siteSettings
-        cp static/logo_large.png $path/.siteSettings
-        cp static/logo_small.png $path/.siteSettings
+        if [ !-e "$path/.siteSettings" ]
+        then
+            echo "Creating site configuration folder at location"
+            mkdir $path/.siteSettings
+            chgrp www-data $path/.siteSettings
+            chmod 755 $path/.siteSettings
+        fi
+
+        if [ !-e "$path/.siteSettings/settings.php" ]
+        then
+            echo "Copying site settings to sittings folder"
+            cp settings.php $path/.siteSettings
+        fi
+
+        if [ !-e "$path/.siteSettings/logo_large.png" ]
+        then
+            echo "Copying default logo (large) to sittings folder"
+            cp static/logo_large.png $path/.siteSettings
+        fi
+
+        if [ !-e "$path/.siteSettings/logo_small.png" ]
+        then
+            echo "Copying default logo (small) to sittings folder"
+            cp static/logo_small.png $path/.siteSettings
+        fi
+
     else
         echo "Path not a directory"
         exit
@@ -107,7 +126,9 @@ echo "Done!"
 echo ""
 echo "Setting www-data group write permissions on public_html folder..."
 chgrp www-data public_html -R
-chmod 775 public_html -R
+chmod 774 public_html -R
+chgrp www-data . -R
+chmod 754 . -R
 echo "Done!"
 echo ""
 echo "Restarting Apache with new configuration loaded..."
