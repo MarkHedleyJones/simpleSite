@@ -14,11 +14,11 @@ function tld() {
 }
 
 function url_www() {
-	return 'http://www.' . sitename() . tld();
+	return 'http://' . URL_CONTENT;
 }
 
 function url_static() {
-	return 'http://static.' . sitename() . tld();
+	return 'http://' . URL_STATIC;
 }
 
 function first($num, $array) {
