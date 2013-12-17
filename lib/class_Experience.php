@@ -182,8 +182,8 @@ class File extends Node {
         exec($command);
 
         // Create web rescaled image
-        //$command = "convert " . $path_from . " -resize '1024x768>' " . $path_to;
-        $command = "cp " . $path_from . " " . $path_to;
+        $command = "convert " . $path_from . " -resize '1024x768>' " . $path_to;
+        //$command = "cp " . $path_from . " " . $path_to;
         if ($debug) print '<br>Executing command: ' . $command;
         exec($command);
 
