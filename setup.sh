@@ -171,5 +171,6 @@ if [ ! -e /usr/bin/convert ]
     echo "Important! Could not find ImageMagick!"
     echo "Please install imagemagick using your package manager"
     echo "e.g. sudo apt-get install imagemagick"
+fi
 echo ""
 echo "Installation complete. You can view the website at http://$url_content"
