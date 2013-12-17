@@ -144,7 +144,7 @@ class File extends Node {
                 return $this->as_thumbnail();
 
             case 'txt':
-                return div(file_get_contents($this->path),Array('class'=>'htmlBox'));
+                return div(file_get_contents($this->path));
                 break;
         }
     }
