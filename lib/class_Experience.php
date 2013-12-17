@@ -118,8 +118,8 @@ class File extends Node {
                 break;
 
             case 'jpg':
-                if ($this->is_cached() == False) {
-                    $this->cache_image();
+                if ($this->thumbnail_cached() == False) {
+                    $this->create_thumbnail();
                 }
                 //return $this->as_thumbnail(($accomodate_html ? 'r' : False));
                 return $this->as_thumbnail();
@@ -155,13 +155,13 @@ class File extends Node {
     }
 
     public function get_thumbnail() {
-        if ($this->is_cached() == False) $this->cache_image();
+        if ($this->thumbnail_cached() == False) $this->create_thumbnail();
         return $this->name_thumbnail();
     }
 
 
-    public function is_cached($debug=False) {
-        $path = clean_path($_SERVER['DOCUMENT_ROOT'] . $this->url);
+    public function thumbnail_cached($debug=False) {
+        $path = str_replace('.'.$this->extension, '_thumb.'.$this->extension, clean_path($_SERVER['DOCUMENT_ROOT'] . $this->url));
         $cached = file_exists($path);
         if ($debug){
             print '<br><br>Checking for cached image in "' . $path . '"';
@@ -171,7 +171,7 @@ class File extends Node {
         return $cached;
     }
 
-    public function cache_image($debug=False) {
+    public function create_thumbnail($debug=False) {
         $path_from = clean_path(PATH_WATCH . $this->url);
         $path_to = clean_path($_SERVER['DOCUMENT_ROOT'] . $this->url);
         $command = "mkdir -p " . substr($path_to, 0, strrpos($path_to, '/', -1) + 1);
@@ -182,9 +182,10 @@ class File extends Node {
         exec($command);
 
         // Create web rescaled image
-        $command = "convert " . $path_from . " -resize '1024x768>' " . $path_to;
+        //$command = "convert " . $path_from . " -resize '1024x768>' " . $path_to;
+        $command = "cp " . $path_from . " " . $path_to;
         if ($debug) print '<br>Executing command: ' . $command;
-        //exec($command);
+        exec($command);
 
         // Create thumbnail
         $command = "convert " . $path_from . " -thumbnail '256' " . str_replace('.'.$this->extension, '_thumb.'.$this->extension, $path_to);
