@@ -187,7 +187,7 @@ class File extends Node {
         //exec($command);
 
         // Create thumbnail
-        $command = "convert " . $path_from . " -resize '256' " . str_replace('.'.$this->extension, '_thumb.'.$this->extension, $path_to);
+        $command = "convert " . $path_from . " -thumbnail '256' " . str_replace('.'.$this->extension, '_thumb.'.$this->extension, $path_to);
         if ($debug) print '<br>Executing command: ' . $command;
         exec($command);
 
