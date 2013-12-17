@@ -184,7 +184,7 @@ class File extends Node {
         // Create web rescaled image
         $command = "convert " . $path_from . " -resize '1024x768>' " . $path_to;
         if ($debug) print '<br>Executing command: ' . $command;
-        exec($command);
+        //exec($command);
 
         // Create thumbnail
         $command = "convert " . $path_from . " -resize '256' " . str_replace('.'.$this->extension, '_thumb.'.$this->extension, $path_to);
