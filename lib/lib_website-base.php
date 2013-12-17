@@ -35,7 +35,7 @@ function header_large($navLinks) {
 	// Create the frontpage header
 	$h = new Content();
 	$h->append(div(NAME_OF_SITE, array('class'=>'title c1')));
-	$h->append(div(sitename(), array('class'=>'subtitle c3')));
+	$h->append(div(TAGLINE, array('class'=>'subtitle c3')));
 	$h->wrap('div', array('class'=>'right mainFont'));
 	$h->prepend(href(img( url_static() . '/' . LOGO_LARGE,'Site logo'),'/'));
 	$h->wrap('div', array('id'=>'head'));
@@ -49,7 +49,7 @@ function header_large($navLinks) {
 		$list->append(href(ucfirst($link),'/' . $link));
 	}
 	$n->append($list);
-	$n->wrap('div', array('class'=>'navbanner mainFont bg_c3 bdr_c3 a_c2 ahover_c1'));
+	$n->wrap('div', array('class'=>'navbanner mainFont bg_c3 bdr_c275 a_c2 ahover_c1'));
 
 	$c->append($n);
 	$c->wrap('div', array('id'=>'header', 'class'=>'bg_c4'));
@@ -64,7 +64,7 @@ function header_small() {
 	// Build the header
 	$h = new Content();
 	$h->append(div(NAME_OF_SITE, array('class'=>'title c1')));
-	$h->append(div(sitename(), array('class'=>'subtitle c3')));
+	$h->append(div(TAGLINE, array('class'=>'subtitle c3')));
 	$h->wrap('div', array('class'=>'right mainFont'));
     $h->prepend(href(img( url_static() . '/' . LOGO_SMALL,'Site logo'),'/'));
 	$h->wrap('div', array('id'=>'head', 'class'=>'mini'));
@@ -104,7 +104,6 @@ class BasePage extends Page {
     	$this->wrap('div', array('id'=>'content'));
     	if ($this->header) $this->prepend($this->header);
     	if ($this->footer) $this->append($this->footer);
-    	$this->script_reference('http://code.jquery.com/jquery-latest.min.js');
         $this->style_reference( url_static() . '/style.css');
         $this->style_reference( url_static() . '/theme.php');
         $this->style_reference('http://fonts.googleapis.com/css?family=Merriweather+Sans:400,700');

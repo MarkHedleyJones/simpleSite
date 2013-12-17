@@ -5,8 +5,9 @@ $p = new BasePage('Home',
                   footer());
 
 $p->style_reference( url_static() . '/fancybox/source/jquery.fancybox.css?v=2.1.5');
+$p->script_reference('http://code.jquery.com/jquery-latest.min.js');
 $p->script_reference( url_static() . '/fancybox/source/jquery.fancybox.pack.js?v=2.1.5');
-$p->script_block('$(document).ready(function() {
+$p->readyScript('$(document).ready(function() {
     $(".fancybox").fancybox({
         openEffect  : "none",
         closeEffect : "none",

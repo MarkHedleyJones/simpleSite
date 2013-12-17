@@ -226,7 +226,7 @@ class Experience extends Node {
         foreach ($this->files AS $file) {
             if (strtolower($file->extension) == 'jpg') {
                 if ($this->contains_html && $imgs < 3) {
-                    $c->prepend($file->render($this->contains_html));
+                    $c->append($file->render($this->contains_html));
                     ++$imgs;
                 }
                 else {

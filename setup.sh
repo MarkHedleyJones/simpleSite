@@ -53,6 +53,7 @@ then
             echo "Creating site configuration folder at location"
             mkdir $path/.siteSettings
             chgrp www-data $path/.siteSettings
+            chown $USER $path/.siteSettings
             chmod 754 $path/.siteSettings
         fi
 
@@ -165,5 +166,10 @@ include(PATH_WATCH . '/.siteSettings/settings.php');
 " > config.php
 echo "Done!"
 echo ""
+if [ ! -e /usr/bin/convert ]
+    then
+    echo "Important! Could not find ImageMagick!"
+    echo "Please install imagemagick using your package manager"
+    echo "e.g. sudo apt-get install imagemagick"
 echo ""
 echo "Installation complete. You can view the website at http://$url_content"
