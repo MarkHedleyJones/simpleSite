@@ -76,6 +76,11 @@ class Node {
     public $name;           // Name of folder or file
 
     public function __construct($location) {
+
+        // print '<br>';
+        // print '<br>';
+
+        // print 'location = ' . $location . '<br>';
         // Detect if location is url or path
         if (strpos($location, PATH_WATCH) !== FALSE) {
             $this->path = $location;
@@ -86,13 +91,27 @@ class Node {
             $this->path = clean_path(url2path($location));
         }
 
-        if (substr($this->url, -1) == '/') $this->name = end(explode('/',substr($this->url,0,-1)));
-        else $this->name = end(explode('/', $this->url));
+
+        if (substr($this->url, -1) == '/') {
+            $this->name = end(explode('/',substr($this->url,0,-1)));
+            // print 'path a';
+            // print '<br>';
+        }
+        else{
+            $this->name = end(explode('/', $this->url));
+            // print 'path b';
+            // print '<br>';
+        }
+
+        //print 'name = ' . $this->name . '<br>';
 
         $tmp = unpack_name($this->name);
+        //print_r($tmp);
         foreach ($tmp as $key => $value) $this->$key = $value;
 
         if ($this->date == False) {
+            // print $this->path;
+            // print '<br>';
             $this->date = new DateTime(date('c', filectime($this->path)));
             $this->dateFormatter = 'jS M Y';
             $this->year = $this->date->format('Y');
@@ -123,6 +142,10 @@ class File extends Node {
                 }
                 //return $this->as_thumbnail(($accomodate_html ? 'r' : False));
                 return $this->as_thumbnail();
+
+            case 'txt':
+                return div(file_get_contents($this->path),Array('class'=>'htmlBox'));
+                break;
         }
     }
 
@@ -137,15 +160,13 @@ class File extends Node {
                 'rel' => 'gallery',
                 'title' => $this->name);
 
-        if ($float != False) {
-            if ($float == 'r') {
-                $attrs['class'] .= ' fr';
-                $attrs['style'] = 'clear: right';
-            }
-            else {
-                $attrs['class'] .= ' fl';
-                $attrs['style'] = 'clear: left';
-            }
+        if (strpos($this->url, '_fr') != False) {
+            $attrs['class'] .= ' fr';
+            $attrs['style'] = 'clear: right';
+        }
+        elseif (strpos($this->url, '_fl.') != False) {
+            $attrs['class'] .= ' fl';
+            $attrs['style'] = 'clear: left';
         }
 
         $c->append(img( $this->name_thumbnail(),""));
@@ -182,13 +203,13 @@ class File extends Node {
         exec($command);
 
         // Create web rescaled image
-        $command = "convert " . $path_from . " -resize '1024x768>' " . $path_to;
+        $command = "convert '" . $path_from . "' -resize '1024x768>' '" . $path_to . "'";
         //$command = "cp " . $path_from . " " . $path_to;
         if ($debug) print '<br>Executing command: ' . $command;
         exec($command);
 
         // Create thumbnail
-        $command = "convert " . $path_from . " -thumbnail '256' " . str_replace('.'.$this->extension, '_thumb.'.$this->extension, $path_to);
+        $command = "convert '" . $path_from . "' -thumbnail '256' '" . str_replace('.'.$this->extension, '_thumb.'.$this->extension, $path_to) . "'";
         if ($debug) print '<br>Executing command: ' . $command;
         exec($command);
 
@@ -216,51 +237,60 @@ class Experience extends Node {
         $c = new Content();
         $this->populate_files();
         $imgs = 0;
-        // Render html files if any
-        if ($this->contains_html) {
-            foreach ($this->files AS $file) {
-                if (strtolower($file->extension) == 'html') {
-                    $c->append($file->render($this->contains_html));
-                }
-            }
-        }
+
         foreach ($this->files AS $file) {
-            if (strtolower($file->extension) == 'jpg') {
-                if ($this->contains_html && $imgs < 3) {
-                    $c->append($file->render($this->contains_html));
-                    ++$imgs;
-                }
-                else {
-                    $c->append($file->render($this->contains_html));
-                }
-            }
+            $c->append($file->render($this->contains_html));
         }
+
         return $c;
     }
 
     public function populate_files($type=False) {
         //Supported filetypes
-        $types = Array('images' => 'jpg',
-                       'texts' => 'txt',
-                       'html' => 'html');
-
-        //Filter down to passed type
-        if ($type != False) $types = Array($type => $types[$type]);
-
-        foreach ($types AS $type => $extension) {
-            $files = $this->get_files($extension,True);
-            foreach ($files AS $file) {
-                if ($type == 'html') $this->contains_html = True;
-                array_push($this->files,new File($file));
-            }
+        $extensions = Array('html', 'txt', 'jpg');
+        $files = $this->get_supportedFiles($extensions, True);
+        foreach ($files as $file) {
+            array_push($this->files, new File(clean_path($file)));
         }
+        // //Filter down to passed type
+        // if ($type != False) $types = Array($type => $types[$type]);
+
+        // foreach ($types AS $extension) {
+        //     $files = $this->get_files($extension,True);
+        //     foreach ($files AS $file) {
+        //         $file = clean_path($file);
+        //         if ($type == 'html') $this->contains_html = True;
+        //         array_push($this->files,new File($file));
+        //     }
+        // }
     }
 
     public function get_files($extension, $addPath=False) {
-        return array_map(function ($x) use ($addPath) {
-            if ($addPath) return $this->path .  $x;
-            else return $x;
-        }, get_filesInDir($this->path, $extension));
+        $out = get_filesInDir($this->path, $extension);
+        if ($addPath) return $this->pathPrependor($out);
+        else return $out;
+    }
+
+    public function get_supportedFiles($extensions, $addPath=False) {
+        $out = Array();
+        foreach (scandir($this->path) AS $file) {
+            foreach ($extensions AS $extension) {
+                if (strpos(strtolower($file), '.' . strtolower($extension)) != False) {
+                    array_push($out, $file);
+                    break;
+                }
+            }
+        }
+        asort($out);
+
+        if ($addPath) return $this->pathPrependor($out);
+        else return $out;
+    }
+
+    public function pathPrependor($filenames) {
+        return array_map(function ($x) {
+            return $this->path .  $x;
+        }, $filenames);
     }
 
     public function displayBox() {
@@ -295,9 +325,7 @@ class Experience extends Node {
             }
         }
         if ($maxImg != '') {
-            $name = explode('.', $maxImg);
-            $imgName = $name[0] . '.' . $name[1];
-            return new File($this->path . $imgName);
+            return new File(clean_path($this->path . $maxImg));
 
         }
         else return False;
@@ -320,7 +348,7 @@ class ExperienceList {
             $experiences = get_subdirs($path);
             $index = array_map(function ($x) use ($path) {return str_replace($path, '', $x);}, $experiences);
             foreach ($index as $name) {
-                array_push($this->experiences[$type], new Experience($path . $name));
+                array_push($this->experiences[$type], new Experience(clean_path($path . $name)));
             }
         }
     }
