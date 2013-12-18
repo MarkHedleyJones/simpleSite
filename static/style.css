@@ -139,7 +139,9 @@ body {
 	display: block;
 	margin: 0 auto 100px auto;
 	height: 100%;
-    width: 960px;
+    max-width: 920px;
+    padding: 0 20px;
+    text-align: center;
 }
 
 #footer {
@@ -172,6 +174,10 @@ h1, h2, h3, h4 {
 
 #head img {
 	display: inline;
+}
+
+#head a {
+    outline: none;
 }
 
 #head .right {
@@ -236,15 +242,6 @@ h1, h2, h3, h4 {
     text-decoration: underline;
 }
 
-
-.main {
-	max-width: 960px;
-	min-width: 460px;
-	margin: 0 auto;
-	padding: 20px;
-	text-align: center;
-}
-
 .photo {
 	box-shadow: 0px 0px 8px 2px #777777;
     -moz-box-shadow: 2px 2px 4px 0px #777777;
@@ -254,17 +251,16 @@ h1, h2, h3, h4 {
 	border-width: 1px;
     border-color: #A6A6A6;
 	display: inline-block;
-	margin: 20px;
+	margin: 30px;
 	width: 256px;
 	height: auto;
     outline: none;
 }
 
 .htmlBox {
-    width: 636px;
-    display: inline-block;
     text-align: left;
     margin-bottom: 110px;
+    max-width: 640px;
 }
 
 .photo.portrait {

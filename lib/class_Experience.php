@@ -230,10 +230,7 @@ class Image extends File {
 
     public function cache($thumbOnly=False) {
         if (file_exists($this->folder_local) == False) {
-            print 'folder no exist';
-            $cmd = "mkdir -p " . $this->folder_local;
-            print $cmd;
-            print exec($cmd);
+            mkdir($this->folder_local, 0765, True);
         }
         if (file_exists($this->folder_local . $this->filename_cached(True)) == False) $this->create_thumbnail();
         if ($thumbOnly == False && file_exists($this->folder_local . $this->filename_cached()) == False) $this->create_fullImage();
@@ -366,7 +363,7 @@ class Experience extends Node {
         }
 
         if ($thumbImg) {
-            $thumb = File::create(clean_path($this->path . $thumbImg));
+            $thumb = new Image(clean_path($this->path . $thumbImg));
             if ($thumb->cached(True) == False) $thumb->cache(True);
             return $thumb->url(True);
         }
