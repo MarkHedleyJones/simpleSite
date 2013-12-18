@@ -74,7 +74,7 @@ class Node {
     public $day;            // Day of node
     public $title;          // Title as extracted from name
     public $description;    // Description extracted from name
-    public $url;            // Where to point a browser to
+    public $url;            // URL for this node (may be a file may be a folder)
     public $path;           // Full path on disk
     public $name;           // Name of folder or file
 
@@ -126,40 +126,72 @@ class Node {
 
 class File extends Node {
 
-    public $extension;
+    public $ext;
+    public $path_remote;
+    public $path_local;
+    public $folder_remote;
+    public $folder_local;
+    public $url_folder;
+    public $url_file;
 
-    public function __construct($location) {
-        $this->extension = end(explode('.', $location));
+    public function __construct($location, $ext=False) {
+        if ($ext == False) $this->ext = File::extension($location);
         parent::__construct($location);
+        $this->filename_remote = $location;
+        $this->filename_local = $_SERVER['DOCUMENT_ROOT'] . substr($this->url_folder(), 1) . $this->name;
+        $this->folder_remote = str_replace($this->name, '', $this->filename_remote);
+        $this->folder_local = str_replace($this->name, '', $this->filename_local);
+        $this->url_folder = str_replace($this->name, '', $this->url);
+        $this->url_file = $this->url;
     }
 
-    public function render($accomodate_html=False) {
-        switch (strtolower($this->extension)) {
-            case 'html':
-                return div(file_get_contents($this->path),Array('class'=>'htmlBox'));
-                break;
+    public static function extension($location) {
+        // Return the file extension for the file in the given location
+        return strtolower(end(explode('.', $location)));
+    }
 
-            case 'jpg':
-                if ($this->thumbnail_cached() == False) {
-                    $this->create_thumbnail();
-                }
-                //return $this->as_thumbnail(($accomodate_html ? 'r' : False));
-                return $this->as_thumbnail();
-
-            case 'txt':
-                return div(file_get_contents($this->path));
-                break;
+    public static function create($location) {
+        $ext = File::extension($location);
+        if ($ext == 'jpg' || $ext == 'png' || $ext == 'gif') {
+            return new Image($location, $ext);
+        }
+        elseif ($ext == 'html' || $ext == 'txt') {
+            return new Text($location, $ext);
         }
     }
 
-    public function name_thumbnail() {
-        return clean_path(str_replace('.'.$this->extension, '_thumb.'.$this->extension, $this->url));
+    /**
+     * Return the folder (in relative url format) where this file is contained
+     * @return [string] [folder path]
+     */
+    public function url_folder() {
+        return str_replace($this->name, '', path2url($this->path));
     }
 
+    public function path_folder() {
+        return str_replace($this->name, '', $this->path);
+    }
 
-    public function as_thumbnail($float=False) {
+    // Render function must be overriden by subclassed filetype
+    public function render() {
+        trigger_error('Unknown file type');
+    }
+}
+
+class Image extends File {
+
+    public function __construct($location) {
+        parent::__construct($location);
+    }
+
+    public function render() {
+        if ($this->cached() == False) $this->cache();
+        return $this->as_thumbnail();
+    }
+
+    public function as_thumbnail() {
         $c = new Content();
-        $attrs = array('href'=>$this->url,
+        $attrs = array('href'=>$this->url(),
                 'class' => 'fancybox photo',
                 'rel' => 'gallery',
                 'title' => $this->name);
@@ -173,68 +205,75 @@ class File extends Node {
             $attrs['style'] = 'clear: left';
         }
 
-        $c->append(img( $this->name_thumbnail(),""));
+        $c->append(img( $this->url(True),""));
         $c->wrap('a',$attrs);
 
         return $c;
     }
 
-    public function get_thumbnail() {
-        if ($this->thumbnail_cached() == False) $this->create_thumbnail();
-        return $this->name_thumbnail();
+    public function url($thumbnail=False) {
+        return $this->url_folder . $this->filename_cached($thumbnail);
     }
 
-
-    public function thumbnail_cached($debug=False) {
-        $path = str_replace('.'.$this->extension, '_thumb.'.$this->extension, clean_path($_SERVER['DOCUMENT_ROOT'] . $this->url));
-        $cached = file_exists($path);
-        if ($debug){
-            print '<br><br>Checking for cached image in "' . $path . '"';
-            if ($cached === True) print '<br>Image cached';
-            else print '<br>Image not cached';
-        }
-        return $cached;
+    public function filename_cached($thumbnail=False) {
+        $out = md5_file($this->filename_remote);
+        if ($thumbnail) $out .= '_thumb';
+        return $out .= '.' . $this->ext;
     }
 
-    public function create_thumbnail($debug=False) {
-        $path_from = clean_path(PATH_WATCH . $this->url);
-        $path_to = clean_path($_SERVER['DOCUMENT_ROOT'] . $this->url);
-        $command = "mkdir -p " . substr($path_to, 0, strrpos($path_to, '/', -1) + 1);
-        if ($debug) {
-            print '<br><br>Caching image from ' . $path_from . ' to ' . $path_to;
-            print '<br>Executing command: ' . $command;
+    public function cached($thumbOnly=False) {
+        $path = $this->folder_local;
+        if (file_exists($path . $this->filename_cached(True)) == False) return False;
+        if ($thumbOnly == False && file_exists($path . $this->filename_cached()) == False) return False;
+        return True;
+    }
+
+    public function cache($thumbOnly=False) {
+        if (file_exists($this->folder_local) == False) {
+            print 'folder no exist';
+            $cmd = "mkdir -p " . $this->folder_local;
+            print $cmd;
+            print exec($cmd);
         }
-        exec($command);
+        if (file_exists($this->folder_local . $this->filename_cached(True)) == False) $this->create_thumbnail();
+        if ($thumbOnly == False && file_exists($this->folder_local . $this->filename_cached()) == False) $this->create_fullImage();
+    }
 
-        // Create web rescaled image
-        $command = "convert '" . $path_from . "' -resize '1024x768>' '" . $path_to . "'";
-        //$command = "cp " . $path_from . " " . $path_to;
-        if ($debug) print '<br>Executing command: ' . $command;
-        exec($command);
+    public function create_thumbnail() {
+        $cmd = "convert '" . $this->filename_remote . "' -thumbnail '256' '" . $this->folder_local . $this->filename_cached(True) . "'";
+        exec($cmd);
+    }
 
-        // Create thumbnail
-        $command = "convert '" . $path_from . "' -thumbnail '256' '" . str_replace('.'.$this->extension, '_thumb.'.$this->extension, $path_to) . "'";
-        if ($debug) print '<br>Executing command: ' . $command;
-        exec($command);
+    public function create_fullImage() {
+        $cmd =  "convert '" . $this->filename_remote . "' -resize '1024x768>' '" . $this->folder_local . $this->filename_cached() . "'";
+        exec($cmd);
+    }
 
+}
+
+class Text extends File {
+
+    public function __construct($location) {
+        parent::__construct($location);
+    }
+
+    public function render() {
+        $data = file_get_contents($this->path);
+        $attrs = Array();
+        if ($this->ext == 'html') $attrs['class'] = 'htmlBox';
+        return div($data, $attrs);
     }
 }
 
-
 class Experience extends Node {
-    // A collection of events
-    // Ambiguity: Many events to one Experience
-
 
     public $files;
     public $thumbnail;
-    public $contains_html;
     public $last_modified;
 
     public function __construct($location) {
         $this->thumbnail = False;
         $this->files = Array();
-        $this->contains_html = False;
         parent::__construct($location);
         $this->last_modified = last_modified($this->path);
     }
@@ -242,30 +281,28 @@ class Experience extends Node {
     public function render() {
         $c = new Content();
         $this->populate_files();
-        $imgs = 0;
-
         foreach ($this->files AS $file) {
-            $c->append($file->render($this->contains_html));
+            $c->append($file->render());
         }
         return $c;
     }
 
     public function populate_files($type=False) {
         //Supported filetypes
-        $extensions = Array('html', 'txt', 'jpg');
-        $files = $this->get_supportedFiles($extensions, True);
+        $extensions = Array('html', 'txt', 'jpg', 'png', 'gif');
+        $files = $this->get_filesByExtension($extensions, True);
         foreach ($files as $file) {
-            array_push($this->files, new File(clean_path($file)));
+            array_push($this->files, File::create(clean_path($file)));
         }
     }
 
-    public function get_files($extension, $addPath=False) {
-        $out = get_filesInDir($this->path, $extension);
-        if ($addPath) return $this->pathPrependor($out);
-        else return $out;
-    }
+    // public function get_files($extension, $addPath=False) {
+    //     $out = get_filesInDir($this->path, $extension);
+    //     if ($addPath) return $this->pathPrependor($out);
+    //     else return $out;
+    // }
 
-    public function get_supportedFiles($extensions, $addPath=False) {
+    public function get_filesByExtension($extensions, $addPath=False) {
         $out = Array();
         foreach (scandir($this->path) AS $file) {
             foreach ($extensions AS $extension) {
@@ -292,9 +329,7 @@ class Experience extends Node {
         $box = new Content();
         $box->span($this->title, array('class'=>'c5', 'style'=>'display: inline-block; width: 100%'));
         $thumbnail = $this->get_thumbnail();
-        if ($thumbnail == False) $thumb = url_static() . '/noPhoto.png';
-        else $thumb = $thumbnail->get_thumbnail();
-        $box->img($thumb, '');
+        $box->img($thumbnail, '');
         $wrapAttrs = array('href' => clean_path($this->url),
                            'class' => 'expBox mainFont bg_c4');
         $box->wrap('a',$wrapAttrs);
@@ -303,11 +338,22 @@ class Experience extends Node {
     }
 
 
+    /**
+     * Retrieve the name of the path to the image that will be used as the
+     * thumbnail for this experience
+     * @return [String || False] Path to the image to use as the thumbnail or
+     * False if no suitable image found.
+     */
     public function get_thumbnail() {
-        $images = $this->get_files('jpg');
         $maxChars = 0;
-        $maxImg = '';
+        $thumbImg = False;
+
+        $images = $this->get_filesByExtension(Array('jpg', 'png', 'gif'));
         foreach ($images as $image) {
+            if (strpos($image, 'thumb') != -1) {
+                $thumbImg = $image;
+                break;
+            }
             $strlen = strlen($image);
             $count = 0;
             for ($i = 0; $i < $strlen; $i++) {
@@ -315,14 +361,16 @@ class Experience extends Node {
             }
             if ($count > $maxChars) {
                 $maxChars  = $count;
-                $maxImg = $image;
+                $thumbImg = $image;
             }
         }
-        if ($maxImg != '') {
-            return new File(clean_path($this->path . $maxImg));
 
+        if ($thumbImg) {
+            $thumb = File::create(clean_path($this->path . $thumbImg));
+            if ($thumb->cached(True) == False) $thumb->cache(True);
+            return $thumb->url(True);
         }
-        else return False;
+        else return url_static() . '/noPhoto.png';
     }
 }
 

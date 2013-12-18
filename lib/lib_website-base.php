@@ -159,7 +159,7 @@ function path_string() {
     return url2path(url_string());
 }
 
-function get_subdirs($path,$debug=True) {
+function get_subdirs($path,$debug=False) {
     if ($debug) print '<br><br>get_subdirs called with with "' . $path . '"';
     $path = clean_path($path);
     $realPath = url2path($path);
