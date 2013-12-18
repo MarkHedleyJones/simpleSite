@@ -156,6 +156,7 @@ class File extends Node {
         return clean_path(str_replace('.'.$this->extension, '_thumb.'.$this->extension, $this->url));
     }
 
+
     public function as_thumbnail($float=False) {
         $c = new Content();
         $attrs = array('href'=>$this->url,
@@ -228,18 +229,14 @@ class Experience extends Node {
     public $files;
     public $thumbnail;
     public $contains_html;
+    public $last_modified;
 
     public function __construct($location) {
         $this->thumbnail = False;
         $this->files = Array();
         $this->contains_html = False;
         parent::__construct($location);
-        print $location;
-        print $this->last_modified();
-    }
-
-    public function last_modified() {
-        return exec('find ' . $this->path . ' -exec stat \{} --printf="%Y\n" \; | sort -n -r | head -n 1');
+        $this->last_modified = last_modified($this->path);
     }
 
     public function render() {
@@ -344,7 +341,7 @@ class ExperienceList {
 
         // If we're at base (path is empty) then add all experience types to array
         if (count($path) == 0) {
-            $subdirs = array_map(function ($x) {return str_replace('/', '', $x);},get_subdirs($self->path_base));
+            $subdirs = array_map(function ($x) {return str_replace('/', '', $x);},get_subdirs('/'));
             foreach ($subdirs AS $type) $this->experiences[$type] = Array();
         }
         else {
@@ -358,7 +355,7 @@ class ExperienceList {
         }
         else {
             // Otherwise load add experiences of each type in the experience array
-            foreach ($this->experiences as $type) {
+            foreach ($this->experiences as $type => $none) {
                 $experiencePath = '/' . $type . '/';
                 $experiences = get_subdirs($experiencePath);
                 $index = array_map(function ($x) use ($experiencePath) {return str_replace($experiencePath, '', $x);}, $experiences);
