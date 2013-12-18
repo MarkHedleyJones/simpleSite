@@ -156,7 +156,7 @@ function path_string() {
     return url2path(url_string());
 }
 
-function get_subdirs($path,$debug=False) {
+function get_subdirs($path,$debug=True) {
     if ($debug) print '<br><br>get_subdirs called with with "' . $path . '"';
     $path = clean_path($path);
     $realPath = url2path($path);
@@ -256,6 +256,16 @@ function url_array($debug=False) {
         print_r($out);
     }
     return $out;
+}
+
+function urlToarray($url) {
+    if ($url == False) {
+        return Array();
+    }
+    else {
+        $path_base = trim($url);
+        return array_filter(explode('/', $path_base), function ($x) {return strlen($x) > 0; });
+    }
 }
 
 

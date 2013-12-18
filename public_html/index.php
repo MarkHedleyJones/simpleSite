@@ -9,7 +9,8 @@ include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/PHP-HTMLifier/lib_html.php');
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/lib_website-base.php');
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/class_Experience.php');
 
-$experienceList = new ExperienceList();
+
+$experienceList = new ExperienceList($_SERVER['REQUEST_URI']);
 $depth = count(url_array());
 
 if ($depth == 0) include("../lib/views/landing.php");

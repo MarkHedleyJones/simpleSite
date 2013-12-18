@@ -1,5 +1,8 @@
 <?php
 
+// Get last modified time for a folder by scanning the contents
+// find public_html/recipes/Beef_Stir_Fry/ -exec stat \{} --printf="%Y\n" \; | sort -n -r | head -n 1
+
 function unpack_name($filename) {
     $out = Array();
     $lastDigitPos = 0;
@@ -231,6 +234,12 @@ class Experience extends Node {
         $this->files = Array();
         $this->contains_html = False;
         parent::__construct($location);
+        print $location;
+        print $this->last_modified();
+    }
+
+    public function last_modified() {
+        return exec('find ' . $this->path . ' -exec stat \{} --printf="%Y\n" \; | sort -n -r | head -n 1');
     }
 
     public function render() {
@@ -241,7 +250,6 @@ class Experience extends Node {
         foreach ($this->files AS $file) {
             $c->append($file->render($this->contains_html));
         }
-
         return $c;
     }
 
@@ -252,17 +260,6 @@ class Experience extends Node {
         foreach ($files as $file) {
             array_push($this->files, new File(clean_path($file)));
         }
-        // //Filter down to passed type
-        // if ($type != False) $types = Array($type => $types[$type]);
-
-        // foreach ($types AS $extension) {
-        //     $files = $this->get_files($extension,True);
-        //     foreach ($files AS $file) {
-        //         $file = clean_path($file);
-        //         if ($type == 'html') $this->contains_html = True;
-        //         array_push($this->files,new File($file));
-        //     }
-        // }
     }
 
     public function get_files($extension, $addPath=False) {
@@ -335,20 +332,39 @@ class Experience extends Node {
 class ExperienceList {
 
     public $experiences;
+    public $path_base;
 
-    public function __construct() {
+    public function __construct($path_base=False) {
 
-        $subdirs = array_map(function ($x) {return str_replace('/', '', $x);},get_subdirs('/'));
-
+        // Determine where and how deep we are in the subfolders
+        $path = urlToArray($path_base);
         $this->experiences = Array();
-        foreach ($subdirs AS $type) $this->experiences[$type] = Array();
 
-        foreach ($subdirs as $type) {
-            $path = '/' . $type . '/';
-            $experiences = get_subdirs($path);
-            $index = array_map(function ($x) use ($path) {return str_replace($path, '', $x);}, $experiences);
-            foreach ($index as $name) {
-                array_push($this->experiences[$type], new Experience(clean_path($path . $name)));
+        // We only load experiences from subfolders so load as appropriate
+
+        // If we're at base (path is empty) then add all experience types to array
+        if (count($path) == 0) {
+            $subdirs = array_map(function ($x) {return str_replace('/', '', $x);},get_subdirs($self->path_base));
+            foreach ($subdirs AS $type) $this->experiences[$type] = Array();
+        }
+        else {
+            // Otherwise add only the experience type that we are in
+            $this->experiences[$path[1]] = Array();
+        }
+
+        // If we're in a specific experience with an experience type, only load that experience
+        if (count($path) == 2) {
+            array_push($this->experiences[$path[1]], new Experience('/' . $path[1] . '/' . $path[2] . '/'));
+        }
+        else {
+            // Otherwise load add experiences of each type in the experience array
+            foreach ($this->experiences as $type) {
+                $experiencePath = '/' . $type . '/';
+                $experiences = get_subdirs($experiencePath);
+                $index = array_map(function ($x) use ($experiencePath) {return str_replace($experiencePath, '', $x);}, $experiences);
+                foreach ($index as $name) {
+                    array_push($this->experiences[$type], new Experience(clean_path($experiencePath . $name)));
+                }
             }
         }
     }
