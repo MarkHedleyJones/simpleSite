@@ -19,5 +19,16 @@ define('COLOR_4', '#f0f0f0');
 define('COLOR_5', '#ffffff');
 define('COLOR_x', '#9bd5e1');
 
-// Change this line to match your own google site verification content string
-define('GOOGLE_SITE_VERIFICATION', 'bsfVqdOV6N3OmWrpFpYBuHVl3WW_NJcMg-rFxwQrTRY');
+
+// Want to use Google Analytics to see how many people are visiting your site?
+//
+// Uncomment the following two lines and add the required strings from google.
+//
+// For the verificationn string - add only the contents of the content field in
+// the meta tag (don't verify by uploading the file).
+//
+// For the tracking code - remove the script tags from the provided tracking
+// snippit.
+
+// define('GOOGLE_SITE_VERIFICATION', "");
+// define('GOOGLE_TRACKING_CODE',"");
