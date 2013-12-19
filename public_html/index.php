@@ -9,6 +9,11 @@ include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/PHP-HTMLifier/lib_html.php');
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/lib_website-base.php');
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/class_Experience.php');
 
+// Check for a 404
+if (file_exists(url2path($_SERVER['REQUEST_URI'])) == False) {
+    include("../lib/views/404.php");
+    die();
+}
 
 // Determine name of cached page (regardles of if it exists yet)
 $pageLastModified = last_modified(url2path(url_string()));
