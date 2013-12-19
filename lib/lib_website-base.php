@@ -96,6 +96,8 @@ class BasePage extends Page {
     	$this->wrap('div', array('id'=>'content'));
     	if ($this->header) $this->prepend($this->header);
     	if ($this->footer) $this->append($this->footer);
+        $this->generic_tag('meta', Array('name'=>'google-site-verification',
+                                         'content'=> GOOGLE_SITE_VERIFICATION));
         $this->style_reference( url_static() . '/style.css');
         $this->style_reference( url_static() . '/theme.php');
         $this->style_reference('http://fonts.googleapis.com/css?family=Merriweather+Sans:400,700');

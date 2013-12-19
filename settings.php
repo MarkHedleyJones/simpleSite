@@ -18,3 +18,6 @@ define('COLOR_3', '#c3c3c3');
 define('COLOR_4', '#f0f0f0');
 define('COLOR_5', '#ffffff');
 define('COLOR_x', '#9bd5e1');
+
+// Change this line to match your own google site verification content string
+define('GOOGLE_SITE_VERIFICATION', 'bsfVqdOV6N3OmWrpFpYBuHVl3WW_NJcMg-rFxwQrTRY');
