@@ -1,19 +1,11 @@
 <?php
 
-define('ROOT_NAME',$_SERVER['HTTP_HOST']);
-define('ROOT_URL', 'http://' . $_SERVER['HTTP_HOST']);
-
-
 function sitename() {
 	return $_SERVER['HTTP_HOST'];
 }
 
-function tld() {
-	return str_replace('www.' . sitename(), '', $_SERVER['HTTP_HOST']);
-}
-
 function url_content() {
-	return 'http://' . URL_CONTENT;
+	return 'http://' . $_SERVER['HTTP_HOST'];
 }
 
 function url_static() {

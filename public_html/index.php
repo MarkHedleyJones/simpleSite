@@ -9,16 +9,37 @@ include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/PHP-HTMLifier/lib_html.php');
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/lib_website-base.php');
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/class_Experience.php');
 
+// Determine name of cached page (regardles of if it exists yet)
+$pageLastModified = last_modified(url2path(url_string()));
+$page_path = clean_path($_SERVER['DOCUMENT_ROOT'] . url_string());
+$page_filename = $page_path . $pageLastModified . '.html';
+
+// Chech for a flush command
+if (strpos($_SERVER['REQUEST_URI'], '?refresh') != False) {
+    $here = str_replace('?refresh/', '', url_string());
+    foreach (scandir('.') as $a => $b) {
+        if ($b[0] != '.' && $b != 'index.php') {
+            $path = $_SERVER['DOCUMENT_ROOT'] . $b;
+            if (is_dir($path)) {
+                $cmd = "rm " . $path . " -rf";
+                exec($cmd);
+            }
+            else {
+                $cmd = "rm " . $path;
+                exec($cmd);
+            }
+        }
+    }
+    redirect($here);
+
+}
+
 // Check for a 404
 if (file_exists(url2path($_SERVER['REQUEST_URI'])) == False) {
     include("../lib/views/404.php");
     die();
 }
 
-// Determine name of cached page (regardles of if it exists yet)
-$pageLastModified = last_modified(url2path(url_string()));
-$page_path = clean_path($_SERVER['DOCUMENT_ROOT'] . url_string());
-$page_filename = $page_path . $pageLastModified . '.html';
 
 if (file_exists($page_filename)) print file_get_contents($page_filename);
 else {

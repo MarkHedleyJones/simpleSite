@@ -161,7 +161,6 @@ echo "
 // For site source see: https://github.com/markjones112358/simpleSite
 
 define('PATH_WATCH', '$path');
-define('URL_CONTENT', '$url_content');
 define('URL_STATIC', '$url_static');
 
 include(PATH_WATCH . '/.siteSettings/settings.php');
