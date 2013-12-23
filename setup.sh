@@ -162,7 +162,7 @@ echo "
 
 define('PATH_WATCH', '$path');
 define('URL_STATIC', '$url_static');
-
+define('PAGE_CACHING', True);
 include(PATH_WATCH . '/.siteSettings/settings.php');
 ?>
 " > config.php

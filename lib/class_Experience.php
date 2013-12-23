@@ -259,6 +259,7 @@ class Text extends File {
         $data = file_get_contents($this->path);
         $attrs = Array();
         if ($this->ext == 'html') $attrs['class'] = 'htmlBox';
+        else $attrs['class'] = 'm20_0';
         return div($data, $attrs);
     }
 }
@@ -280,7 +281,7 @@ class Experience extends Node {
         $c = new Content();
         $this->populate_files();
         foreach ($this->files AS $file) {
-            $c->append($file->render());
+            if (strpos(strtolower($file->name), 'noshow') == False) $c->append($file->render());
         }
         return $c;
     }

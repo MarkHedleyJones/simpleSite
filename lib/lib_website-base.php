@@ -2,6 +2,7 @@
 
 function sitename() {
 	return $_SERVER['HTTP_HOST'];
+
 }
 
 function url_content() {
