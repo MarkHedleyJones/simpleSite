@@ -44,14 +44,13 @@ if (file_exists(url2path($_SERVER['REQUEST_URI'])) == False) {
 if (file_exists($page_filename)) print file_get_contents($page_filename);
 else {
     $depth = count(url_array());
-    $experienceList = new ExperienceList($_SERVER['REQUEST_URI']);
 
+    $experienceList = new ExperienceList($_SERVER['REQUEST_URI']);
     // Write the page to the buffer
     ob_start();
     if ($depth == 0) include("../lib/views/landing.php");
     elseif ($depth == 1) include("../lib/views/sub_page.php");
     elseif ($depth == 2) include("../lib/views/sub_sub_page.php");
-
     // Retrieve the page and clear the output buffer
     unset($p);
     if (file_exists($page_path) == False) mkdir($page_path, 0765, True);

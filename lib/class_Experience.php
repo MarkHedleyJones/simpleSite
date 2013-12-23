@@ -158,6 +158,7 @@ class File extends Node {
         elseif ($ext == 'html' || $ext == 'txt') {
             return new Text($location, $ext);
         }
+        else return False;
     }
 
     /**
@@ -289,7 +290,10 @@ class Experience extends Node {
         $extensions = Array('html', 'txt', 'jpg', 'png', 'gif');
         $files = $this->get_filesByExtension($extensions, True);
         foreach ($files as $file) {
-            array_push($this->files, File::create(clean_path($file)));
+            $fileObj = File::create(clean_path($file));
+            if ($fileObj !== False) {
+                array_push($this->files, $fileObj);
+            }
         }
     }
 
