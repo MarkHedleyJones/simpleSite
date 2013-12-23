@@ -27,7 +27,7 @@ function header_large($navLinks) {
 
 	// Create the frontpage header
 	$h = new Content();
-	$h->append(div(NAME_OF_SITE, array('class'=>'title c1')));
+	$h->h1(NAME_OF_SITE, array('class'=>'title c1 m0'));
 	$h->append(div(TAGLINE, array('class'=>'subtitle c3')));
 	$h->wrap('div', array('class'=>'right mainFont'));
 	$h->prepend(href(img( url_static() . '/' . LOGO_LARGE,'Site logo'),'/'));
