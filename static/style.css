@@ -47,6 +47,15 @@ body {
     border-width: 2px !important;
 }
 
+table.th_l th { text-align: right; }
+table.th_r th { text-align: left; }
+table.td_l td { text-align: left; }
+table.td_r td { text-align: right; }
+
+table {
+    text-align: left;
+}
+
 .mainFont { font-family: 'Merriweather Sans', sans-serif }
 
 .fLargest { font-size: 1.6em }
