@@ -80,10 +80,6 @@ class Node {
 
     public function __construct($location) {
 
-        // print '<br>';
-        // print '<br>';
-
-        // print 'location = ' . $location . '<br>';
         // Detect if location is url or path
         if (strpos($location, PATH_WATCH) !== FALSE) {
             $this->path = $location;
@@ -97,24 +93,15 @@ class Node {
 
         if (substr($this->url, -1) == '/') {
             $this->name = end(explode('/',substr($this->url,0,-1)));
-            // print 'path a';
-            // print '<br>';
         }
         else{
             $this->name = end(explode('/', $this->url));
-            // print 'path b';
-            // print '<br>';
         }
 
-        //print 'name = ' . $this->name . '<br>';
-
         $tmp = unpack_name($this->name);
-        //print_r($tmp);
         foreach ($tmp as $key => $value) $this->$key = $value;
 
         if ($this->date == False) {
-            // print $this->path;
-            // print '<br>';
             $this->date = new DateTime(date('c', filectime($this->path)));
             $this->dateFormatter = 'jS M Y';
             $this->year = $this->date->format('Y');
@@ -133,6 +120,7 @@ class File extends Node {
     public $folder_local;
     public $url_folder;
     public $url_file;
+    public $markdown_parser;
 
     public function __construct($location, $ext=False) {
         if ($ext == False) $this->ext = File::extension($location);
@@ -143,6 +131,7 @@ class File extends Node {
         $this->folder_local = str_replace($this->name, '', $this->filename_local);
         $this->url_folder = str_replace($this->name, '', $this->url);
         $this->url_file = $this->url;
+        $this->markdown_parser = False;
     }
 
     public static function extension($location) {
@@ -155,7 +144,7 @@ class File extends Node {
         if ($ext == 'jpg' || $ext == 'png' || $ext == 'gif') {
             return new Image($location, $ext);
         }
-        elseif ($ext == 'html' || $ext == 'txt') {
+        elseif ($ext == 'html' || $ext == 'txt' || $ext == 'md') {
             return new Text($location, $ext);
         }
         else return False;
@@ -258,7 +247,13 @@ class Text extends File {
     public function render() {
         $data = file_get_contents($this->path);
         $attrs = Array();
-        if ($this->ext == 'html') $attrs['class'] = 'htmlBox';
+        if ($this->ext != 'txt') {
+            $attrs['class'] = 'htmlBox';
+            if ($this->ext == 'md') {
+                $parsedown = new Parsedown();
+                $data = $parsedown->parse($data);
+            }
+        }
         else $attrs['class'] = 'm20_0';
         return div($data, $attrs);
     }
@@ -288,7 +283,7 @@ class Experience extends Node {
 
     public function populate_files($type=False) {
         //Supported filetypes
-        $extensions = Array('html', 'txt', 'jpg', 'png', 'gif');
+        $extensions = Array('md', 'html', 'txt', 'jpg', 'png', 'gif');
         $files = $this->get_filesByExtension($extensions, True);
         foreach ($files as $file) {
             $fileObj = File::create(clean_path($file));
@@ -297,12 +292,6 @@ class Experience extends Node {
             }
         }
     }
-
-    // public function get_files($extension, $addPath=False) {
-    //     $out = get_filesInDir($this->path, $extension);
-    //     if ($addPath) return $this->pathPrependor($out);
-    //     else return $out;
-    // }
 
     public function get_filesByExtension($extensions, $addPath=False) {
         $out = Array();
