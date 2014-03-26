@@ -248,11 +248,12 @@ class Text extends File {
         $data = file_get_contents($this->path);
         $attrs = Array();
         if ($this->ext != 'txt') {
-            $attrs['class'] = 'htmlBox';
             if ($this->ext == 'md') {
+                $attrs['class'] = 'l';
                 $parsedown = new Parsedown();
                 $data = $parsedown->parse($data);
             }
+            else $attrs['class'] = 'htmlBox';
         }
         else $attrs['class'] = 'm20_0';
         return div($data, $attrs);
