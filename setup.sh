@@ -95,7 +95,7 @@ echo "Creating apache configuration file (/etc/apache2/sites-available/$name)...
 sudo echo "<VirtualHost *:80>
     ServerAdmin $email
     ServerName $url_content
-    DocumentRoot /var/www/$name/public_html/
+    DocumentRoot /var/www/$name/public_html
 
     <Directory /var/www/$name/public_html>
         Options -Indexes +FollowSymLinks MultiViews
@@ -110,7 +110,7 @@ sudo echo "<VirtualHost *:80>
 <VirtualHost *:80>
     ServerAdmin $email
     ServerName $url_static
-    DocumentRoot /var/www/$name/static/
+    DocumentRoot /var/www/$name/static
 
     <Directory /var/www/$name/static/>
         Options -Indexes +FollowSymLinks MultiViews

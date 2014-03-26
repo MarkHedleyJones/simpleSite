@@ -138,7 +138,7 @@ class File extends Node {
         if ($ext == False) $this->ext = File::extension($location);
         parent::__construct($location);
         $this->filename_remote = $location;
-        $this->filename_local = $_SERVER['DOCUMENT_ROOT'] . substr($this->url_folder(), 1) . $this->name;
+        $this->filename_local = $_SERVER['DOCUMENT_ROOT'] . '/' . substr($this->url_folder(), 1) . $this->name;
         $this->folder_remote = str_replace($this->name, '', $this->filename_remote);
         $this->folder_local = str_replace($this->name, '', $this->filename_local);
         $this->url_folder = str_replace($this->name, '', $this->url);
@@ -386,7 +386,7 @@ class ExperienceList {
         // Determine where and how deep we are in the subfolders
         $path = urlToArray($path_base);
         $this->experiences = Array();
-
+        
         // We only load experiences from subfolders so load as appropriate
 
         // If we're at base (path is empty) then add all experience types to array
