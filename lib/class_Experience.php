@@ -56,9 +56,10 @@ function unpack_name($filename) {
     while (strpos($rest, '_') === 0) $rest = substr($rest, 1);
 
     $rest = str_replace('_', ' ', $rest);
-    $parts = explode('-', $rest, 2);
-    $out['title'] = $parts[0];
-    if (isset($parts[1])) $out['description'] = $parts[1];
+    $out['title'] = $rest;
+    #$parts = explode('-', $rest, 2);
+    #$out['title'] = $parts[0];
+    #if (isset($parts[1])) $out['description'] = $parts[1];
 
     return $out;
 }
