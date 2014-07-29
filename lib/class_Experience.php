@@ -148,6 +148,12 @@ class File extends Node {
         elseif ($ext == 'html' || $ext == 'txt' || $ext == 'md') {
             return new Text($location, $ext);
         }
+        elseif ($ext == 'py') {
+            return new Code($location, $ext);
+        }
+        elseif ($ext == 'comments') {
+            return new Comments($location, $ext);
+        }
         else return False;
     }
 
@@ -239,6 +245,34 @@ class Image extends File {
 
 }
 
+
+class Comments extends File {
+    public function __construct($location) {
+        parent::__construct($location);
+    }
+
+    public function render() {
+        $data = file_get_contents($this->path);
+        $attrs = Array('class'=>'comments');
+        $disqus = new Content();
+        $disqus->div('', array('id'=>'disqus_thread'));
+        $disqus->script_block("
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = '".trim(preg_replace('/\s\s+/', ' ', $data))."'; // required: replace example with your forum shortname
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        ");
+        $disqus->block('noscript', 'Please enable JavaScript to view the ' . href('comments powered by Disqus.','http://disqus.com/?ref_noscript'));
+        $disqus->href('comments powered by ' . span('Disqus', array('class'=>'logo-disqus')), "http://disqus.com", array('class'=>'dsq-brlink'));
+        return div($disqus, $attrs);
+    }
+}
+
 class Text extends File {
 
     public function __construct($location) {
@@ -258,6 +292,67 @@ class Text extends File {
         }
         else $attrs['class'] = 'm20_0';
         return div($data, $attrs);
+    }
+}
+
+class Code extends File {
+
+    public function __construct($location) {
+        parent::__construct($location);
+    }
+
+    public function render() {
+        $data = file_get_contents($this->path);
+        $attrs = Array('class'=>'l code bdr_r8');
+        switch ($this->ext) {
+            case 'py':
+                $language = 'python';
+                break;
+
+            case 'sh':
+                $language = 'bash';
+                break;
+
+            case 'rb':
+                $language = 'ruby';
+                break;
+
+            case 'hs':
+                $language = 'haskell';
+                break;
+
+            case 'class':
+                $language = 'java';
+                break;
+
+            case 'sql':
+                $language = 'mysql';
+                break;
+
+            case 'sci':
+                $language = 'scilab';
+                break;
+
+            case 'pl':
+                $language = 'perl';
+                break;
+
+            case 'm':
+                $language = 'octave';
+                break;
+
+            case 'gpi':
+            case 'plt':
+                $language = 'gnuplot';
+                break;
+
+            default:
+                $language = $ext;
+                break;
+        }
+        $geshi = new GeSHi($data, $language);
+        $geshi->enable_classes();
+        return div($geshi->parse_code(), $attrs);
     }
 }
 
@@ -285,7 +380,29 @@ class Experience extends Node {
 
     public function populate_files($type=False) {
         //Supported filetypes
-        $extensions = Array('md', 'html', 'txt', 'jpg', 'png', 'gif');
+        $extensions = Array('md',
+                            'html',
+                            'txt',
+                            'jpg',
+                            'png',
+                            'gif',
+                            'py',
+                            'sh',
+                            'rb',
+                            'php',
+                            'hs',
+                            'c',
+                            'cpp',
+                            'sql',
+                            'class',
+                            'scala',
+                            'sci',
+                            'pl',
+                            'm',
+                            'go',
+                            'gpi',
+                            'plt',
+                            'comments');
         $files = $this->get_filesByExtension($extensions, True);
         foreach ($files as $file) {
             $fileObj = File::create(clean_path($file));
@@ -377,7 +494,7 @@ class ExperienceList {
         // Determine where and how deep we are in the subfolders
         $path = urlToArray($path_base);
         $this->experiences = Array();
-        
+
         // We only load experiences from subfolders so load as appropriate
 
         // If we're at base (path is empty) then add all experience types to array

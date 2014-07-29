@@ -315,3 +315,32 @@ h1, h2, h3, h4 {
 	font-size: 1.7em;
 	margin: 10px;
 }
+
+.code {
+    background-color: #1D1F21;
+    padding: 5px 20px;
+}
+
+.kw1 {
+    color: #81A2B5;
+}
+
+.kw2 {
+    color: #F0C674;
+}
+
+.nu0 {
+    color: #CC6666;
+}
+
+.col {
+    color: #969896;
+}
+
+pre {
+    color: #C5C8C6;
+}
+
+.comments {
+    margin: 20px 0;
+}

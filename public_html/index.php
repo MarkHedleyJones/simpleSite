@@ -9,6 +9,7 @@ include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/PHP-HTMLifier/lib_html.php');
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/lib_website-base.php');
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/class_Experience.php');
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/parsedown/Parsedown.php');
+include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/geshi/geshi.php');
 // Determine name of cached page (regardles of if it exists yet)
 $pageLastModified = last_modified(url2path(url_string()));
 $page_path = clean_path($_SERVER['DOCUMENT_ROOT'] . url_string());
