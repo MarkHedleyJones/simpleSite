@@ -1,6 +1,11 @@
 <?php
-$p = new BasePage('Home',
-                  'Personal website.',
+
+$type = reset(url_array());
+$name = end(url_array());
+$experience = $experienceList->get_experience($type, $name);
+
+$p = new BasePage($name . ' | ' . ucfirst($type),
+                  $experience->description,
                   header_small(),
                   footer());
 
@@ -13,10 +18,6 @@ $p->readyScript('$(document).ready(function() {
         closeEffect : "none",
     });
 });');
-
-$type = reset(url_array());
-$name = end(url_array());
-$experience = $experienceList->get_experience($type, $name);
 $p->append($experience->render());
 $p->prepend(hr());
 $p->prepend(h1(ucfirst($experience->title),array('class'=>'c2 m20 c mainFont')));

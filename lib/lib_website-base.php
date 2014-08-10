@@ -87,8 +87,13 @@ class BasePage extends Page {
 	public $footer;
     public $navLinks;
 
-    public function __construct($title, $description, $header=False, $footer=False) {
-        parent::__construct($title . ' | ' . sitename(), $description);
+    public function __construct($title=False,
+                                $description=False,
+                                $header=False,
+                                $footer=False) {
+        if ($title == False ) $title = sitename();
+        else $title .= ' | ' . sitename();
+        parent::__construct($title, $description);
         $this->header = $header;
         $this->footer = $footer;
     }

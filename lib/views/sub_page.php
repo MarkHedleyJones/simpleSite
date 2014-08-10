@@ -1,10 +1,9 @@
 <?php
-$p = new BasePage('Home',
+$type = str_replace('/', '', url_string());
+$p = new BasePage(ucfirst($type),
                   'Personal website.',
                   header_small(),
                   footer());
-$type = str_replace('/', '', url_string());
-
 $recent = ExperienceList::ordered_byDate($experienceList->experiences[$type]);
 foreach($recent AS $experience) $p->append($experience->displayBox());
 $p->wrap('div', Array('class'=>'c'));

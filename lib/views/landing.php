@@ -1,6 +1,6 @@
 <?php
-$p = new BasePage('Home',
-                  'Personal website.',
+$p = new BasePage(False,
+                  False,
                   header_large($experienceList->types()),
                   footer());
 
