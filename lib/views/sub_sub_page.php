@@ -4,7 +4,7 @@ $type = reset(url_array());
 $name = end(url_array());
 $experience = $experienceList->get_experience($type, $name);
 
-$p = new BasePage($name . ' | ' . ucfirst($type),
+$p = new BasePage($experience->title . ' | ' . ucfirst($type),
                   $experience->description,
                   header_small(),
                   footer());
