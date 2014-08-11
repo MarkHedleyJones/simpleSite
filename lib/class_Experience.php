@@ -460,7 +460,11 @@ class Experience extends Node {
 
         $images = $this->get_filesByExtension(Array('jpg', 'png', 'gif'));
         foreach ($images as $image) {
-            if (strpos($image, 'thumb') != -1) {
+            if (strpos($image, 'thumb') !== False) {
+                $thumbImg = $image;
+                break;
+            }
+            elseif (strpos($image, 'logo') !== False) {
                 $thumbImg = $image;
                 break;
             }
