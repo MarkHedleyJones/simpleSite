@@ -10,6 +10,33 @@ include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/lib_website-base.php');
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/class_Experience.php');
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/parsedown/Parsedown.php');
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/geshi/geshi.php');
+
+if (!file_exists(dirname($_SERVER['DOCUMENT_ROOT']) . '/public_html/' . LOGO_LARGE)) {
+    if(file_exists(PATH_WATCH . '/.siteSettings/' . LOGO_LARGE)) {
+        if (!copy(PATH_WATCH . '/.siteSettings/' . LOGO_LARGE, dirname($_SERVER['DOCUMENT_ROOT']) . '/public_html/' . LOGO_LARGE)) {
+            trigger_error('Could not copy site logo to public_html');
+        }
+    }
+    else {
+        if (!copy(dirname($_SERVER['DOCUMENT_ROOT']) . '/static/logo_large.png', dirname($_SERVER['DOCUMENT_ROOT']) . '/public_html/' . LOGO_LARGE)) {
+            trigger_error('Could not copy site logo to public_html');
+        }
+    }
+}
+
+if (!file_exists(dirname($_SERVER['DOCUMENT_ROOT']) . '/public_html/' . LOGO_SMALL)) {
+    if(file_exists(PATH_WATCH . '/.siteSettings/' . LOGO_SMALL)) {
+        if (!copy(PATH_WATCH . '/.siteSettings/' . LOGO_SMALL, dirname($_SERVER['DOCUMENT_ROOT']) . '/public_html/' . LOGO_SMALL)) {
+            trigger_error('Could not copy site logo to public_html');
+        }
+    }
+    else {
+        if (!copy(dirname($_SERVER['DOCUMENT_ROOT']) . '/static/logo_small.png', dirname($_SERVER['DOCUMENT_ROOT']) . '/public_html/' . LOGO_SMALL)) {
+            trigger_error('Could not copy site logo to public_html');
+        }
+    }
+}
+
 // Determine name of cached page (regardles of if it exists yet)
 $pageLastModified = last_modified(url2path(url_string()));
 $page_path = clean_path($_SERVER['DOCUMENT_ROOT'] . url_string());

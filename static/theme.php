@@ -45,3 +45,12 @@ header("Content-type: text/css; charset: UTF-8");
 .bg_c4 {background-color: <?php echo COLOR_4; ?>}
 .bg_c5 {background-color: <?php echo COLOR_5; ?>}
 .bg_cx {background-color: <?php echo COLOR_x; ?>}
+
+h2 {
+    color:  <?php echo COLOR_1; ?>
+}
+
+h3,
+h4 {
+    color:  <?php echo COLOR_2; ?>
+}

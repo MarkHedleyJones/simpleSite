@@ -373,7 +373,11 @@ class Experience extends Node {
         $c = new Content();
         $this->populate_files();
         foreach ($this->files AS $file) {
-            if (strpos(strtolower($file->name), 'noshow') == False) $c->append($file->render());
+            if (strpos(strtolower($file->name), 'noshow') == False &&
+                strtolower($file->name) != 'desc.txt' &&
+                strtolower($file->name) != 'description.txt') {
+                $c->append($file->render());
+            }
         }
         return $c;
     }
@@ -436,15 +440,38 @@ class Experience extends Node {
 
     public function displayBox() {
 
-        $box = new Content();
-        $box->span($this->title, array('class'=>'c5', 'style'=>'display: inline-block; width: 100%'));
-        $thumbnail = $this->get_thumbnail();
-        $box->img($thumbnail, '');
-        $wrapAttrs = array('href' => clean_path($this->url),
-                           'class' => 'expBox mainFont bg_c4');
-        $box->wrap('a',$wrapAttrs);
-        //Find a thumbnail for the experience
-        return $box;
+        if (function_exists('user_displayBox')) {
+            return user_displayBox($this->title,
+                                   $this->get_description(),
+                                   $this->get_thumbnail(),
+                                   clean_path($this->url));
+        }
+        else {
+            $box = new Content();
+            $box->span($this->title, array('class'=>'c5', 'style'=>'display: inline-block; width: 100%'));
+            $thumbnail = $this->get_thumbnail();
+            $box->img($thumbnail, '');
+            $wrapAttrs = array('href' => clean_path($this->url),
+                               'class' => 'expBox mainFont bg_c4');
+            $box->wrap('a',$wrapAttrs);
+            //Find a thumbnail for the experience
+            return $box;
+        }
+    }
+
+    public function get_description() {
+        $textfiles = $this->get_filesByExtension(Array('txt'));
+        $description = False;
+        if (count($textfiles) > 0) {
+            foreach ($textfiles as $file) {
+                $lower = strtolower($file);
+                if ($lower == 'desc.txt' || $lower == 'description.txt') {
+                    $description = $file;
+                }
+            }
+        }
+        if ($description != False) return str_replace("\n", '<br>',htmlentities(file_get_contents($this->path . '/' . $description),ENT_QUOTES,'UTF-8'));
+        else return False;
     }
 
 

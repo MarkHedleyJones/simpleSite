@@ -30,7 +30,7 @@ function header_large($navLinks) {
 	$h->h1(NAME_OF_SITE, array('class'=>'title c1 m0'));
 	$h->append(div(TAGLINE, array('class'=>'subtitle c3')));
 	$h->wrap('div', array('class'=>'right mainFont'));
-	$h->prepend(href(img( url_static() . '/' . LOGO_LARGE,'Site logo'),'/'));
+	$h->prepend(href(img( url_content() . '/' . LOGO_LARGE,'Site logo'),'/'));
 	$h->wrap('div', array('id'=>'head'));
 	$c->append($h);
 
@@ -59,7 +59,7 @@ function header_small() {
 	$h->append(div(NAME_OF_SITE, array('class'=>'title c1')));
 	$h->append(div(TAGLINE, array('class'=>'subtitle c3')));
 	$h->wrap('div', array('class'=>'right mainFont'));
-    $h->prepend(href(img( url_static() . '/' . LOGO_SMALL,'Site logo'),'/'));
+    $h->prepend(href(img( url_content() . '/' . LOGO_SMALL,'Site logo'),'/'));
 	$h->wrap('div', array('id'=>'head', 'class'=>'mini'));
 	$c->append($h);
 
@@ -90,16 +90,21 @@ class BasePage extends Page {
     public function __construct($title=False,
                                 $description=False,
                                 $header=False,
-                                $footer=False) {
+                                $footer=False,
+                                $contentWidth=False) {
         if ($title == False ) $title = sitename();
         else $title .= ' | ' . sitename();
         parent::__construct($title, $description);
         $this->header = $header;
         $this->footer = $footer;
+        $this->contentWidth = $contentWidth;
     }
 
     public function __destruct() {
-    	$this->wrap('div', array('id'=>'content'));
+        if ($this->contentWidth != False) {
+            $this->wrap('div', array('id'=>'content',
+                        'class'=>'bdr_r8 bdr'));
+        }
     	if ($this->header) $this->prepend($this->header);
     	if ($this->footer) $this->append($this->footer);
         if (defined('GOOGLE_SITE_VERIFICATION')) {
