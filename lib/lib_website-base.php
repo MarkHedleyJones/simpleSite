@@ -114,6 +114,7 @@ class BasePage extends Page {
         }
         $this->style_reference( url_static() . '/style.css');
         $this->style_reference( url_static() . '/theme.php');
+        $this->style_reference('http://fonts.googleapis.com/css?family=Droid+Sans:400,700');
         $this->style_reference('http://fonts.googleapis.com/css?family=Merriweather+Sans:400,700');
         if (defined('GOOGLE_TRACKING_CODE')) {
             $this->script_block(GOOGLE_TRACKING_CODE);
