@@ -1,5 +1,5 @@
 <?php
-$description = "This site is generated using the freely available SimpleSite. It works by watching a synchronised folder (such as Dropbox or Owncloud) and generating pages based on what it finds.";
+$description = "This site is generated using the freely available SimpleSite. SimpleSite works by watching a cloud synchronised folder (such as Dropbox or ownCloud) and generates pages based on the contents.";
 $files = scan_filesByExtensions(PATH_WATCH, 'txt');
 foreach ($files as $file) {
     if (strpos(strtolower($file), 'desc') !== False) {

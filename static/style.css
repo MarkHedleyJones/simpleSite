@@ -346,16 +346,33 @@ h1, h2, h3, h4 {
     color: #F0C674;
 }
 
+.kw3 {
+    color: #C5C8C6;
+    text-decoration: none;
+}
+
+.kw4 {
+    color: #DE935F;
+}
+
+.nu12,
+.nu6,
 .nu0 {
     color: #CC6666;
 }
+
 
 .co1 {
     color: #969896;
 }
 
+.co2 {
+    color: #8ABEB7;
+}
+
 pre {
     color: #C5C8C6;
+    text-align: left !important;
 }
 
 .comments {
