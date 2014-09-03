@@ -1,8 +1,17 @@
 <?php
-$p = new BasePage(False,
-                  False,
+$description = "This site is generated using the freely available SimpleSite. It works by watching a synchronised folder (such as Dropbox or Owncloud) and generating pages based on what it finds.";
+$files = scan_filesByExtensions(PATH_WATCH, 'txt');
+foreach ($files as $file) {
+    if (strpos(strtolower($file), 'desc') !== False) {
+        $description = retrieve_and_clean(PATH_WATCH . '/' . $file, 160);
+    }
+}
+
+$p = new BasePage(NAME_OF_SITE,
+                  $description,
                   header_large($experienceList->types()),
                   footer());
+
 
 $recent = $experienceList->mostRecent(12);
 if (count($recent) > 0) {

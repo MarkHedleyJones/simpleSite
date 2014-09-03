@@ -1,7 +1,26 @@
 <?php
 
-// Get last modified time for a folder by scanning the contents
-// find public_html/recipes/Beef_Stir_Fry/ -exec stat \{} --printf="%Y\n" \; | sort -n -r | head -n 1
+/**
+ * Given a file path, extract and clean the contents.
+ * @param  String $path, file to open and read.
+ * @param  Int $limit, truncate the returned text to the given num of chars.
+ * @return String
+ */
+function retrieve_and_clean($path, $limit=False) {
+    if ($path == False) return False;
+    else {
+        $out = file_get_contents($path);
+        $out = strip_tags($out);
+        $out = htmlentities($out, ENT_QUOTES, 'UTF-8');
+        if ($limit != False && strlen($out) > $limit) {
+            $out = substr($out, 0, $limit - 3);
+            $out .= '...';
+        }
+        $out = str_replace("\n", '<br>', $out);
+        return $out;
+    }
+}
+
 
 function unpack_name($filename) {
     $out = Array();
@@ -142,18 +161,50 @@ class File extends Node {
 
     public static function create($location) {
         $ext = File::extension($location);
-        if ($ext == 'jpg' || $ext == 'png' || $ext == 'gif') {
-            return new Image($location, $ext);
-        }
-        elseif ($ext == 'html' || $ext == 'txt' || $ext == 'md') {
-            return new Text($location, $ext);
-        }
-        elseif ($ext == 'py') {
-            return new Code($location, $ext);
-        }
-        elseif ($ext == 'comments') {
-            return new Comments($location, $ext);
-        }
+
+        $images = Array('jpg',
+                        'png',
+                        'gif');
+        $markup = Array('html',
+                        'txt',
+                        'md');
+        $code = Array('py',
+                      'sh',
+                      'rb',
+                      'hs',
+                      'class',
+                      'sql',
+                      'sci',
+                      'pl',
+                      'm',
+                      'gpi',
+                      'plt',
+                      'c',
+                      'ada',
+                      'asp',
+                      'autoconf',
+                      'autohotkey',
+                      'bash',
+                      'awk',
+                      'bibtex',
+                      'c',
+                      'cmake',
+                      'coffeescript',
+                      'cpp',
+                      'csharp',
+                      'css',
+                      'd',
+                      'diff',
+                      'fortran',
+                      'java',
+                      'js',
+                      'tex',
+                      'lua');
+
+        if (in_array($ext, $images)) return new Image($location, $ext);
+        elseif (in_array($ext, $markup)) return new Text($location, $ext);
+        elseif (in_array($ext, $code)) return new Code($location, $ext);
+        elseif ($ext == 'comments') return new Comments($location, $ext);
         else return False;
     }
 
@@ -346,8 +397,16 @@ class Code extends File {
                 $language = 'gnuplot';
                 break;
 
+            case 'js':
+                $language = 'javascript';
+                break;
+
+            case 'tex':
+                $language = 'latex';
+                break;
+
             default:
-                $language = $ext;
+                $language = $this->ext;
                 break;
         }
         $geshi = new GeSHi($data, $language);
@@ -367,11 +426,11 @@ class Experience extends Node {
         $this->files = Array();
         parent::__construct($location);
         $this->last_modified = last_modified($this->path);
+        $this->populate_files();
     }
 
     public function render() {
         $c = new Content();
-        $this->populate_files();
         foreach ($this->files AS $file) {
             if (strpos(strtolower($file->name), 'noshow') == False &&
                 strtolower($file->name) != 'desc.txt' &&
@@ -439,10 +498,9 @@ class Experience extends Node {
     }
 
     public function displayBox() {
-
         if (function_exists('user_displayBox')) {
             return user_displayBox($this->title,
-                                   $this->get_description(),
+                                   retrieve_and_clean($this->get_description(), 160),
                                    $this->get_thumbnail(),
                                    clean_path($this->url));
         }
@@ -460,20 +518,55 @@ class Experience extends Node {
     }
 
     public function get_description() {
-        $textfiles = $this->get_filesByExtension(Array('txt'));
-        $description = False;
+
+        $textfiles = $this->files_byExtension('txt');
+        $desc_file = False;
+
         if (count($textfiles) > 0) {
+            // Look first for a dedicated description file
             foreach ($textfiles as $file) {
-                $lower = strtolower($file);
+                $lower = strtolower($file->name);
                 if ($lower == 'desc.txt' || $lower == 'description.txt') {
-                    $description = $file;
+                    $desc_file = $file->path;
                 }
             }
         }
-        if ($description != False) return str_replace("\n", '<br>',htmlentities(file_get_contents($this->path . '/' . $description),ENT_QUOTES,'UTF-8'));
-        else return False;
+        else {
+            // Take text from the first text file in the folder
+            $textfiles = $this->files_byClass('Text');
+            if (count($textfiles) > 0) {
+                // Assume the first file is most suited as containing
+                // the description and chop the first 160 characters.
+                $desc_file = $textfiles[0]->path;
+            }
+        }
+
+        return $desc_file;
     }
 
+
+
+    /**
+     * Return a subset of $this->files (containing File Objects) based
+     * on the provided classname
+     * @param  String $classname
+     * @return Array()
+     */
+    public function files_byClass($classname) {
+        $out = Array();
+        foreach ($this->files AS $file) {
+            if (get_class($file) == $classname) array_push($out, $file);
+        }
+        return $out;
+    }
+
+    public function files_byExtension($extension) {
+        $out = Array();
+        foreach ($this->files AS $file) {
+            if ($file->ext == $extension) array_push($out, $file);
+        }
+        return $out;
+    }
 
     /**
      * Retrieve the name of the path to the image that will be used as the

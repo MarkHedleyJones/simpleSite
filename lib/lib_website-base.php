@@ -176,7 +176,15 @@ function get_subdirs($path,$debug=False) {
     $path = clean_path($path);
     $realPath = url2path($path);
 
-    $subdirs = array_map(function ($x) {return $x . '/';}, array_filter(scandir($realPath), function($x) {return $x[0] != '.';}));
+    $items_in_path = scandir($realPath);
+    $items_in_path = array_filter($items_in_path, function($x) {
+        return $x[0] != '.';
+    });
+    $subdirs = Array();
+    foreach ($items_in_path AS $item) {
+        if (is_dir($realPath . $item)) array_push($subdirs, $item . '/');
+    }
+    // $subdirs = array_map(function ($x) {return $x . '/';}, $items_in_path);
     if ($debug) {
         print '<br>subdirs = ';
         print_r($subdirs);
@@ -326,4 +334,32 @@ function filter_relativeDirs($var) {
     if ($var == '.') return false;
     if ($var == '..') return false;
     if (is_dir($var) == true) return true;
+}
+
+function scan_filesByExtensions($path, $extensions) {
+    $out = Array();
+    if (gettype($extensions) == "string") $extensions = Array($extensions);
+    foreach (scandir($path) AS $file) {
+        if (is_file($path.'/'.$file) == False) continue;
+        foreach ($extensions AS $extension) {
+            if (strpos(strtolower($file), '.' . strtolower($extension)) != False) {
+                array_push($out, $file);
+                break;
+            }
+        }
+    }
+    asort($out);
+    return $out;
+}
+
+/**
+ * Prepend a given string to each element of an array and return the array.
+ * @param  Array(String) $items
+ * @param  String $path
+ * @return Array(String)
+ */
+function array_prepend($items, $path) {
+    $out = Array();
+    foreach ($items AS $item) array_push($out, $path . $item);
+    return $out;
 }
