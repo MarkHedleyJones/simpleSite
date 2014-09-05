@@ -13,7 +13,7 @@ $p = new BasePage(NAME_OF_SITE,
                   footer());
 
 
-$recent = $experienceList->mostRecent(12);
+$recent = $experienceList->mostRecent(NUM_ITEMS_TO_DISPLAY);
 if (count($recent) > 0) {
     foreach($recent AS $experience) $p->append($experience->displayBox());
     $p->wrap('div', Array('class'=>'c', 'style'=>'margin-bottom: 140px'));

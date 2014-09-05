@@ -6,6 +6,7 @@ define('NAME_OF_SITE','My Website');
 define('TAGLINE', 'About me');
 define('FOOTER_TEXT', 'Source code for this site available from <a class="c1" href="https://github.com/markjones112358/simpleSite">github.com/markjones112358/simpleSite</a>');
 define('MAINPAGE_SUBTITLE', 'Recently added...');
+define('NUM_ITEMS_TO_DISPLAY', 12);
 
 // Logo names - Logos live in /static
 define('LOGO_LARGE','logo_large.png');
