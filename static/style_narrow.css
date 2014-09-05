@@ -1,0 +1,39 @@
+@CHARSET "UTF-8";
+
+
+#content {
+    padding-bottom: 70px !important;
+}
+
+h2, h3, h4 {
+    padding-left: 142px;
+    text-align: left;
+}
+
+p {
+    margin: 10px auto 10px auto;
+    text-align: justify;
+    width: 67%;
+}
+
+li {
+    text-align: left
+}
+
+ol,
+ul {
+    margin: 10px auto 10px auto;
+    width: 67%;   
+}
+
+.photo {
+	margin: 15px 13px;
+}
+
+table {
+    margin: 20px auto;
+}
+
+.code {
+    margin: 20px auto;
+}

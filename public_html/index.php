@@ -5,7 +5,7 @@
  * make reference of.
  */
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/config.php');
-include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/PHP-HTMLifier/lib_html.php');
+include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/PHP-HTMLifier/HTMLifier.php');
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/lib_website-base.php');
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/class_Experience.php');
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/parsedown/Parsedown.php');

@@ -59,8 +59,8 @@ define('COLOR_x', '#e6e6e6'); // By default is used for experience tag handles
 //                      )
 //                );
 //     $box->img($thumbnail, $title);
-//     return href($box,
-//                 $url,
+//     return href($url,
+//                 $box,
 //                 array(
 //                     'href' => $url,
 //                     'class' => 'expBox mainFont bg_c4')

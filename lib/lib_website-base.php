@@ -1,5 +1,43 @@
 <?php
 
+
+function myErrorHandler($errno, $errstr, $errfile, $errline)
+{
+    if (!(error_reporting() & $errno)) {
+        // This error code is not included in error_reporting
+        return;
+    }
+
+    switch ($errno) {
+    case E_USER_ERROR:
+        echo "<b>My ERROR</b> [$errno] $errstr<br />\n";
+        echo "  Fatal error on line $errline in file $errfile";
+        echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+        echo "Aborting...<br />\n";
+        exit(1);
+        break;
+
+    case E_USER_WARNING:
+        echo "<b>My WARNING</b> [$errno] $errstr<br />\n";
+        break;
+
+    case E_USER_NOTICE:
+        echo "<b>My NOTICE</b> [$errno] $errstr<br />\n";
+        break;
+
+    default:
+        echo "Unknown error type: [$errno] $errstr<br />\n";
+        debug_print_backtrace();
+        break;
+    }
+    die();
+
+    /* Don't execute PHP internal error handler */
+    return true;
+}
+
+set_error_handler("myErrorHandler");
+
 function sitename() {
 	return $_SERVER['HTTP_HOST'];
 
@@ -30,7 +68,7 @@ function header_large($navLinks) {
 	$h->h1(NAME_OF_SITE, array('class'=>'title c1 m0'));
 	$h->append(div(TAGLINE, array('class'=>'subtitle c3')));
 	$h->wrap('div', array('class'=>'right mainFont'));
-	$h->prepend(href(img( url_content() . '/' . LOGO_LARGE,'Site logo'),'/'));
+	$h->prepend(href('/', img( url_content() . '/' . LOGO_LARGE,'Site logo')));
 	$h->wrap('div', array('id'=>'head'));
 	$c->append($h);
 
@@ -39,7 +77,7 @@ function header_large($navLinks) {
 
 	$list = new UnorderedList(array('class'=>'c_l1'));
 	foreach ($navLinks as $link) {
-		$list->append(href(ucfirst($link),'/' . $link));
+		$list->append(href('/' . $link, ucfirst($link)));
 	}
 	$n->append($list);
 	$n->wrap('div', array('class'=>'navbanner mainFont bg_c3 bdr_c275 a_c2 ahover_c1'));
@@ -59,7 +97,7 @@ function header_small() {
 	$h->append(div(NAME_OF_SITE, array('class'=>'title c1')));
 	$h->append(div(TAGLINE, array('class'=>'subtitle c3')));
 	$h->wrap('div', array('class'=>'right mainFont'));
-    $h->prepend(href(img( url_content() . '/' . LOGO_SMALL,'Site logo'),'/'));
+    $h->prepend(href('/', img( url_content() . '/' . LOGO_SMALL,'Site logo')));
 	$h->wrap('div', array('id'=>'head', 'class'=>'mini'));
 	$c->append($h);
 
@@ -244,7 +282,7 @@ function decomposeAlbumName() {
 function formatPathURL($path, $element) {
     $full = url_content() . '/';
     $len = count($path);
-    $element->href(sitename(),$full);
+    $element->href($full, sitename());
     if ($len > 0) {
         $element->span('/');
     }
@@ -252,7 +290,8 @@ function formatPathURL($path, $element) {
         $full .= $tree . '/';
         if ($i == $len - 1) $element->b(str_replace('_', ' ', $tree));
         else {
-            $element->href(str_replace('_', ' ', $tree),$full);
+            //TODO: test for url, text swap
+            $element->href($full, str_replace('_', ' ', $tree));
             $element->span('/');
         }
     }
@@ -313,11 +352,11 @@ function getDirs($path) {
 }
 
 function photoLink($photoPath, $caption, $href, $landscape=True) {
-    return block('div', href(img($photoPath.'_small.JPG', $caption), $href) . p($caption), array('class'=>'polaroid '.($landscape ? '' : 'portrait')));
+    return block('div', href($href, img($photoPath.'_small.JPG', $caption)) . p($caption), array('class'=>'polaroid '.($landscape ? '' : 'portrait')));
 }
 
 function photo($filename, $caption, $landscape=True) {
-    return block('div', href(img($_SERVER['REQUEST_URI'] .$filename.'_small.JPG', $caption), $_SERVER['REQUEST_URI'] .$filename.'.JPG') . p($caption), array('class'=>'polaroid '.($landscape ? '' : 'portrait')));
+    return block('div', href($_SERVER['REQUEST_URI'] .$filename.'.JPG', img($_SERVER['REQUEST_URI'] .$filename.'_small.JPG', $caption)) . p($caption), array('class'=>'polaroid '.($landscape ? '' : 'portrait')));
 }
 
 function addPhoto($filename, $caption, $landscape=True) {

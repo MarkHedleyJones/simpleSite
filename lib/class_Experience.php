@@ -6,21 +6,53 @@
  * @param  Int $limit, truncate the returned text to the given num of chars.
  * @return String
  */
-function retrieve_and_clean($path, $limit=False) {
+function retrieve_text($path, $limit=False) {
     if ($path == False) return False;
     else {
         $out = file_get_contents($path);
         $out = strip_tags($out);
         $out = htmlentities($out, ENT_QUOTES, 'UTF-8');
-        if ($limit != False && strlen($out) > $limit) {
-            $out = substr($out, 0, $limit - 3);
-            $out .= '...';
-        }
         $out = str_replace("\n", '<br>', $out);
         return $out;
     }
 }
 
+/**
+ * Limit the length of a string without cutting words.
+ * @param  String $text  String to be length limited
+ * @param  Int $limit    Number of characters to limit
+ * @param  String $trail Characters to insert if limit is reached
+ * @return String
+ */
+function limit_text($text, $limit, $trail="...") {
+    $out = str_replace("<br>", ' ', $text);
+    $words = explode(" ", $out);
+    $out = "";
+    $count = 0;
+    $spaceflag = False;
+    $delimiter = "";
+    foreach ($words AS $word) {
+        $wordlen = strlen($word);
+        if ($wordlen > 0) {
+            $spaceflag = False;
+            if ($count + $wordlen + 1 <= $limit) {
+                $out .= $delimiter . $word;
+                $count += $wordlen + 1;
+                $delimiter = " ";
+            }
+            else {
+                $out .= $trail;
+                break;
+            }
+        }
+        elseif ($spaceflag == False) {
+            $spaceflag = True;
+            $out .= "<br>";
+            $delimiter = "";
+        }
+    }
+    return $out;
+}
 
 function unpack_name($filename) {
     $out = Array();
@@ -199,7 +231,8 @@ class File extends Node {
                       'java',
                       'js',
                       'tex',
-                      'lua');
+                      'lua',
+                      'php');
 
         if (in_array($ext, $images)) return new Image($location, $ext);
         elseif (in_array($ext, $markup)) return new Text($location, $ext);
@@ -308,10 +341,7 @@ class Comments extends File {
         $disqus = new Content();
         $disqus->div('', array('id'=>'disqus_thread'));
         $disqus->script_block("
-            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
             var disqus_shortname = '".trim(preg_replace('/\s\s+/', ' ', $data))."'; // required: replace example with your forum shortname
-
-            /* * * DON'T EDIT BELOW THIS LINE * * */
             (function() {
                 var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
                 dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
@@ -319,7 +349,7 @@ class Comments extends File {
             })();
         ");
         $disqus->block('noscript', 'Please enable JavaScript to view the ' . href('comments powered by Disqus.','http://disqus.com/?ref_noscript'));
-        $disqus->href('comments powered by ' . span('Disqus', array('class'=>'logo-disqus')), "http://disqus.com", array('class'=>'dsq-brlink'));
+        $disqus->href("http://disqus.com", 'comments powered by ' . span('Disqus', array('class'=>'logo-disqus')), array('class'=>'dsq-brlink'));
         return div($disqus, $attrs);
     }
 }
@@ -335,7 +365,7 @@ class Text extends File {
         $attrs = Array();
         if ($this->ext != 'txt') {
             if ($this->ext == 'md') {
-                $attrs['class'] = 'l';
+                $attrs['class'] = 'markdown';
                 $parsedown = new Parsedown();
                 $data = $parsedown->parse($data);
             }
@@ -410,6 +440,7 @@ class Code extends File {
                 break;
         }
         $geshi = new GeSHi($data, $language);
+        $geshi->enable_keyword_links(false);
         $geshi->enable_classes();
         return div($geshi->parse_code(), $attrs);
     }
@@ -420,10 +451,12 @@ class Experience extends Node {
     public $files;
     public $thumbnail;
     public $last_modified;
+    public $flags;
 
     public function __construct($location) {
         $this->thumbnail = False;
         $this->files = Array();
+        $this->flags = Array();
         parent::__construct($location);
         $this->last_modified = last_modified($this->path);
         $this->populate_files();
@@ -478,10 +511,16 @@ class Experience extends Node {
     public function get_filesByExtension($extensions, $addPath=False) {
         $out = Array();
         foreach (scandir($this->path) AS $file) {
-            foreach ($extensions AS $extension) {
-                if (strpos(strtolower($file), '.' . strtolower($extension)) != False) {
-                    array_push($out, $file);
-                    break;
+            if (strpos($file, '.') === False) {
+                // Detect any flag files and push to experience flag array
+                array_push($this->flags, $file);
+            }
+            else {
+                foreach ($extensions AS $extension) {
+                    if (strpos(strtolower($file), '.' . strtolower($extension)) != False) {
+                        array_push($out, $file);
+                        break;
+                    }
                 }
             }
         }
@@ -500,7 +539,7 @@ class Experience extends Node {
     public function displayBox() {
         if (function_exists('user_displayBox')) {
             return user_displayBox($this->title,
-                                   retrieve_and_clean($this->get_description(), 160),
+                                   limit_text(retrieve_text($this->get_description()), 160),
                                    $this->get_thumbnail(),
                                    clean_path($this->url));
         }
@@ -560,10 +599,11 @@ class Experience extends Node {
         return $out;
     }
 
-    public function files_byExtension($extension) {
+    public function files_byExtension($extensions) {
         $out = Array();
+        if (gettype($extensions) == 'string') $extensions = Array($extensions);
         foreach ($this->files AS $file) {
-            if ($file->ext == $extension) array_push($out, $file);
+            if (in_array($file->ext, $extensions)) array_push($out, $file);
         }
         return $out;
     }
@@ -575,36 +615,40 @@ class Experience extends Node {
      * False if no suitable image found.
      */
     public function get_thumbnail() {
-        $maxChars = 0;
-        $thumbImg = False;
+        if ($this->thumbnail == False) {
+            $maxChars = 0;
+            $thumbImg = False;
 
-        $images = $this->get_filesByExtension(Array('jpg', 'png', 'gif'));
-        foreach ($images as $image) {
-            if (strpos($image, 'thumb') !== False) {
-                $thumbImg = $image;
-                break;
+            $images = $this->files_byExtension(Array('jpg', 'png', 'gif'));
+            foreach ($images as $image) {
+                if (strpos($image->name, 'thumb') !== False) {
+                    $thumb = $image;
+                    break;
+                }
+                elseif (strpos($image->name, 'logo') !== False) {
+                    $thumb = $image;
+                    break;
+                }
+                $strlen = strlen($image->name);
+                $count = 0;
+                for ($i = 0; $i < $strlen; $i++) {
+                    if (ctype_alpha($image->name[$i])) $count++;
+                }
+                if ($count > $maxChars) {
+                    $maxChars  = $count;
+                    $thumb = $image;
+                }
             }
-            elseif (strpos($image, 'logo') !== False) {
-                $thumbImg = $image;
-                break;
-            }
-            $strlen = strlen($image);
-            $count = 0;
-            for ($i = 0; $i < $strlen; $i++) {
-                if (ctype_alpha($image[$i])) $count++;
-            }
-            if ($count > $maxChars) {
-                $maxChars  = $count;
-                $thumbImg = $image;
-            }
-        }
 
-        if ($thumbImg) {
-            $thumb = new Image(clean_path($this->path . $thumbImg));
-            if ($thumb->cached(True) == False) $thumb->cache(True);
-            return $thumb->url(True);
+            if ($thumb) {
+                // $thumb = new Image(clean_path($this->path . $thumbImg));
+                if ($thumb->cached(True) == False) $thumb->cache(True);
+                $this->thumbnail = $thumb->url(True);
+            }
+            else $this->thumbnail = url_static() . '/noPhoto.png';
+            
+            return $this->thumbnail;
         }
-        else return url_static() . '/noPhoto.png';
     }
 }
 

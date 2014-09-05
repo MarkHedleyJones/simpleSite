@@ -3,7 +3,7 @@ $description = "This site is generated using the freely available SimpleSite. Si
 $files = scan_filesByExtensions(PATH_WATCH, 'txt');
 foreach ($files as $file) {
     if (strpos(strtolower($file), 'desc') !== False) {
-        $description = retrieve_and_clean(PATH_WATCH . '/' . $file, 160);
+        $description = limit_text(retrieve_text(PATH_WATCH . '/' . $file), 160);
     }
 }
 

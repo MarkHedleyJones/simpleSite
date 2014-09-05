@@ -4,7 +4,7 @@ $description = "The " . $type . " page has been automatically generated using Si
 $files = scan_filesByExtensions(PATH_WATCH . '/' . $type, 'txt');
 foreach ($files as $file) {
     if (strpos(strtolower($file), 'desc') !== False) {
-        $description = retrieve_and_clean(PATH_WATCH . '/' . $type . '/' . $file, 160);
+        $description = limit_text(retrieve_text(PATH_WATCH . '/' . $type . '/' . $file), 160);
     }
 }
 $p = new BasePage(ucfirst($type),
