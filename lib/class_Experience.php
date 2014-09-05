@@ -460,6 +460,10 @@ class Experience extends Node {
         parent::__construct($location);
         $this->last_modified = last_modified($this->path);
         $this->populate_files();
+        // Use the oldest known date of the folder
+        foreach ($this->files AS $file) {
+            if ($file->date < $this->date) $this->date = $file->date;
+        }
     }
 
     public function render() {
@@ -541,7 +545,8 @@ class Experience extends Node {
             return user_displayBox($this->title,
                                    limit_text(retrieve_text($this->get_description()), 160),
                                    $this->get_thumbnail(),
-                                   clean_path($this->url));
+                                   clean_path($this->url),
+                                   $this->date);
         }
         else {
             $box = new Content();

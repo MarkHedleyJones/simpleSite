@@ -5,6 +5,7 @@ date_default_timezone_set('Pacific/Auckland');
 define('NAME_OF_SITE','My Website');
 define('TAGLINE', 'About me');
 define('FOOTER_TEXT', 'Source code for this site available from <a class="c1" href="https://github.com/markjones112358/simpleSite">github.com/markjones112358/simpleSite</a>');
+define('MAINPAGE_SUBTITLE', 'Recently added...');
 
 // Logo names - Logos live in /static
 define('LOGO_LARGE','logo_large.png');
@@ -50,7 +51,7 @@ define('COLOR_x', '#e6e6e6'); // By default is used for experience tag handles
 // $thumbnail: Path to the thumbnail for the given experience
 // $url: Path to the experience page
 //
-// function user_displayBox($title, $description, $thumbnail, $url) {
+// function user_displayBox($title, $description, $thumbnail, $url, $date) {
 //     $box = new Content();
 //     $box->span($title,
 //                array(
