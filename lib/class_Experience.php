@@ -154,7 +154,8 @@ class Node {
         foreach ($tmp as $key => $value) $this->$key = $value;
 
         if ($this->date == False) {
-            $this->date = new DateTime(date('c', filectime($this->path)));
+            $this->date = new DateTime(date('c', filemtime($this->path)));
+
             $this->dateFormatter = 'jS M Y';
             $this->year = $this->date->format('Y');
             $this->month = $this->date->format('M');

@@ -123,7 +123,7 @@ class BasePage extends Page {
 }
 
 function last_modified($path) {
-    return exec('find ' . $path . ' -exec stat \{} --printf="%Y\n" \; | sort -n -r | head -n 1');
+    return exec('find ' . $path . ' -exec stat \{} --printf="%Y\n" \; | sort | head -n 1');
 }
 
 function get_filesInDir($path, $extension='jpg') {
