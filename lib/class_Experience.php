@@ -144,10 +144,10 @@ class Node {
 
 
         if (substr($this->url, -1) == '/') {
-            $this->name = end(explode('/',substr($this->url,0,-1)));
+            $this->name = urldecode(end(explode('/',substr($this->url,0,-1))));
         }
         else{
-            $this->name = end(explode('/', $this->url));
+            $this->name = urldecode(end(explode('/', $this->url)));
         }
 
         $tmp = unpack_name($this->name);
@@ -624,6 +624,7 @@ class Experience extends Node {
         if ($this->thumbnail == False) {
             $maxChars = 0;
             $thumbImg = False;
+            $thumb = False;
 
             $images = $this->files_byExtension(Array('jpg', 'png', 'gif'));
             foreach ($images as $image) {
