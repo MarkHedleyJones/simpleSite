@@ -37,6 +37,11 @@ if (!file_exists(dirname($_SERVER['DOCUMENT_ROOT']) . '/public_html/' . LOGO_SMA
     }
 }
 
+if ($_SERVER['REQUEST_URI'] == '/sitemap.xml') {
+    include("../lib/views/sitemap.php");
+    die();
+}
+
 // Determine name of cached page (regardles of if it exists yet)
 $pageLastModified = last_modified(url2path(url_string()));
 $page_path = clean_path($_SERVER['DOCUMENT_ROOT'] . url_string());
