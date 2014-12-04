@@ -13,11 +13,11 @@ foreach ($experiences AS $experience) {
 }
 
 foreach ($subs AS $sub) {
-    xml_url("http://" . clean_path($_SERVER['HTTP_HOST'] . '/' . $sub));
+    xml_url("http://" . clean_path($_SERVER['HTTP_HOST'] . '/' . $sub . '/'));
 }
 
 foreach ($experiences AS $experience) {
-    xml_url("http://" . clean_path($_SERVER['HTTP_HOST'] . '/' . $experience->url));
+    xml_url("http://" . clean_path($_SERVER['HTTP_HOST'] . '/' . substr($experience->url,0,-1)));
 }
 
 echo "</urlset>\n";
