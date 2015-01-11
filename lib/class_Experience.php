@@ -653,7 +653,7 @@ class Experience extends Node {
                 $this->thumbnail = $thumb->url(True);
             }
             else $this->thumbnail = url_static() . '/noPhoto.png';
-            
+
             return $this->thumbnail;
         }
     }
@@ -683,8 +683,9 @@ class ExperienceList {
         }
 
         // If we're in a specific experience with an experience type, only load that experience
-        if (count($path) == 2) {
-            array_push($this->experiences[$path[1]], new Experience('/' . $path[1] . '/' . $path[2] . '/'));
+
+        if (count($path) == 2 || count(get_subdirs(url_string())) == 0) {
+            array_push($this->experiences[$path[1]], new Experience(url_string()));
         }
         else {
             // Otherwise load add experiences of each type in the experience array

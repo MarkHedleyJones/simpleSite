@@ -18,6 +18,9 @@ $p->style_reference( url_static() . '/fancybox/source/jquery.fancybox.css?v=2.1.
 if (in_array('layout_wide', $experience->flags)) {
   $p->style_reference( url_static() . '/style_wide.css');
 }
+elseif (in_array('no_page', $experience->flags)) {
+  $p->style_reference( url_static() . '/style_plain.css');
+}
 else $p->style_reference( url_static() . '/style_narrow.css');
 $p->script_reference('http://code.jquery.com/jquery-latest.min.js');
 $p->script_reference( url_static() . '/fancybox/source/jquery.fancybox.pack.js?v=2.1.5');
@@ -31,15 +34,16 @@ $p->readyScript('$(document).ready(function() {
 $p->append($experience->render());
 
 $thumbnail = $experience->get_thumbnail();
-$exp_head = new Content();
+if (in_array('no_page', $experience->flags) === False) {
+  $exp_head = new Content();
+  $exp_head->h1(ucfirst($experience->title),array('class'=>'c1 c mainFont', 'style'=>'z-index: 5; color: white; position: relative; margin: 0; padding-bottom: 10px'));
+  if ($description != False && (strpos(strtolower($description), 'desc') !== False)) {
+    $exp_head->p($description_text, array('class'=>'description fSmaller', 'style'=>'padding-bottom: 20px; color: #DDD; position:relative; z-index: 5'));
+  }
+  $exp_head->wrap('div', array('style'=>'background-color: rgba(0,0,0,0.65); width: 960px; padding-top: 20px'));
+  $exp_head->wrap('div',array(
+      'style'=>'background-image: url('.$thumbnail.'); background-size: 100% auto; background-position: 0 -400px; width: 960px; margin: -2px 0 40px -20px'
+  ));
 
-$exp_head->h1(ucfirst($experience->title),array('class'=>'c1 c mainFont', 'style'=>'z-index: 5; color: white; position: relative; margin: 0; padding-bottom: 10px'));
-if ($description != False && (strpos(strtolower($description), 'desc') !== False)) {
-  $exp_head->p($description_text, array('class'=>'description fSmaller', 'style'=>'padding-bottom: 20px; color: #DDD; position:relative; z-index: 5'));
+  $p->prepend($exp_head);
 }
-$exp_head->wrap('div', array('style'=>'background-color: rgba(0,0,0,0.65); width: 960px; padding-top: 20px'));
-$exp_head->wrap('div',array(
-    'style'=>'background-image: url('.$thumbnail.'); background-size: 100% auto; background-position: 0 -400px; width: 960px; margin: -2px 0 40px -20px'
-));
-
-$p->prepend($exp_head);

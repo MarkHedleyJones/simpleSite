@@ -86,8 +86,12 @@ else {
     if ($cache) ob_start();
 
     if ($depth == 0) include("../lib/views/landing.php");
-    elseif ($depth == 1) include("../lib/views/sub_page.php");
-    elseif ($depth == 2) include("../lib/views/sub_sub_page.php");
+    else {
+        if ($depth == 2 || count(get_subdirs(url_string())) == 0) {
+            include("../lib/views/sub_sub_page.php");
+        }
+        else include("../lib/views/sub_page.php");
+    }
 
     if ($cache) {
         // Retrieve the page and clear the output buffer
