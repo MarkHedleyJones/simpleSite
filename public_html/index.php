@@ -11,6 +11,19 @@ include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/class_Experience.php');
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/parsedown/Parsedown.php');
 include(dirname($_SERVER['DOCUMENT_ROOT']) . '/lib/geshi/geshi.php');
 
+if (!file_exists(dirname($_SERVER['DOCUMENT_ROOT']) . '/public_html/' . FAVICON)) {
+    if(file_exists(PATH_WATCH . '/.siteSettings/' . FAVICON)) {
+        if (!copy(PATH_WATCH . '/.siteSettings/' . FAVICON, dirname($_SERVER['DOCUMENT_ROOT']) . '/public_html/' . FAVICON)) {
+            trigger_error('Could not copy site logo to public_html');
+        }
+    }
+    else {
+        if (!copy(dirname($_SERVER['DOCUMENT_ROOT']) . '/static/logo_large.png', dirname($_SERVER['DOCUMENT_ROOT']) . '/public_html/' . FAVICON)) {
+            trigger_error('Could not copy site logo to public_html');
+        }
+    }
+}
+
 if (!file_exists(dirname($_SERVER['DOCUMENT_ROOT']) . '/public_html/' . LOGO_LARGE)) {
     if(file_exists(PATH_WATCH . '/.siteSettings/' . LOGO_LARGE)) {
         if (!copy(PATH_WATCH . '/.siteSettings/' . LOGO_LARGE, dirname($_SERVER['DOCUMENT_ROOT']) . '/public_html/' . LOGO_LARGE)) {

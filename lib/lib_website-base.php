@@ -106,6 +106,10 @@ class BasePage extends Page {
         }
     	if ($this->header) $this->prepend($this->header);
     	if ($this->footer) $this->append($this->footer);
+        $this->generic_tag('link', Array(
+                           'rel'=>'icon',
+                           'type'=>'image/x-icon',
+                           'href'=>url_content() . '/' . FAVICON));
         if (defined('GOOGLE_SITE_VERIFICATION')) {
             $this->generic_tag('meta',
                                Array('name' => 'google-site-verification',
@@ -115,6 +119,7 @@ class BasePage extends Page {
         $this->style_reference( url_static() . '/theme.php');
         $this->style_reference('http://fonts.googleapis.com/css?family=Droid+Sans:400,700');
         $this->style_reference('http://fonts.googleapis.com/css?family=Merriweather+Sans:400,700');
+
         if (defined('GOOGLE_TRACKING_CODE')) {
             $this->script_block(GOOGLE_TRACKING_CODE);
         }

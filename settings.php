@@ -11,6 +11,7 @@ define('NUM_ITEMS_TO_DISPLAY', 12);
 // Logo names - Logos live in /static
 define('LOGO_LARGE','logo_large.png');
 define('LOGO_SMALL','logo_small.png');
+define('FAVICON', 'favicon.png');
 
 // Colour theme:
 define('COLOR_0', '#000000');

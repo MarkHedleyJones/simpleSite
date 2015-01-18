@@ -62,16 +62,20 @@ then
             echo "Copying site settings to sittings folder"
             cp settings.php $path/.siteSettings
         fi
-
+        if [ ! -e "$path/.siteSettings/favicon.png" ]
+        then
+            echo "Copying default favicon to settings folder"
+            cp static/favicon.png $path/.siteSettings
+        fi
         if [ ! -e "$path/.siteSettings/logo_large.png" ]
         then
-            echo "Copying default logo (large) to sittings folder"
+            echo "Copying default logo (large) to settings folder"
             cp static/logo_large.png $path/.siteSettings
         fi
 
         if [ ! -e "$path/.siteSettings/logo_small.png" ]
         then
-            echo "Copying default logo (small) to sittings folder"
+            echo "Copying default logo (small) to settings folder"
             cp static/logo_small.png $path/.siteSettings
         fi
 
