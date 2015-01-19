@@ -262,7 +262,7 @@ function formatPathURL($path, $element) {
     $len = count($path);
     $element->href($full, sitename());
     if ($len > 0) {
-        $element->span(' › ');
+        $element->span(' / ');
     }
     foreach (array_values($path) as $i => $tree) {
         $full .= $tree . '/';
@@ -271,7 +271,7 @@ function formatPathURL($path, $element) {
         }
         else {
             //TODO: test for url, text swap
-            $element->span(href($full,  str_replace('-', ' ', str_replace('_', ' ', $tree))) . ' › ', Array('typeof'=>'v:Breadcrumb'));
+            $element->span(href($full,  str_replace('-', ' ', str_replace('_', ' ', $tree))) . ' / ', Array('typeof'=>'v:Breadcrumb'));
         }
     }
     $element->wrap('div', Array('xmlns:v'=>"http://rdf.data-vocabulary.org/#"));
