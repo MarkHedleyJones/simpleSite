@@ -106,7 +106,7 @@ function unpack_name($filename) {
     while (strpos($rest, '-') === 0) $rest = substr($rest, 1);
     while (strpos($rest, '_') === 0) $rest = substr($rest, 1);
 
-    $rest = str_replace('_', ' ', $rest);
+    $rest = str_replace('-', ' ', str_replace('_', ' ', $rest));
     $out['title'] = $rest;
     #$parts = explode('-', $rest, 2);
     #$out['title'] = $parts[0];
@@ -475,6 +475,16 @@ class Experience extends Node {
                 strtolower($file->name) != 'description.txt') {
                 $c->append($file->render());
             }
+            else {
+                // Make sure a cached version of any images with the noshow
+                // flag get generated
+                if (strpos(strtolower($file->name), 'noshow') !== False &&
+                    get_class($file) == 'Image' &&
+                    $file->cached() == False) {
+                    $this->cache();
+                }
+            }
+
         }
         return $c;
     }
@@ -673,14 +683,16 @@ class ExperienceList {
         // We only load experiences from subfolders so load as appropriate
 
         // If we're at base (path is empty) then add all experience types to array
-        if (count($path) == 0) {
-            $subdirs = array_map(function ($x) {return str_replace('/', '', $x);},get_subdirs('/'));
-            foreach ($subdirs AS $type) $this->experiences[$type] = Array();
-        }
-        else {
-            // Otherwise add only the experience type that we are in
-            $this->experiences[$path[1]] = Array();
-        }
+        $subdirs = array_map(function ($x) {return str_replace('/', '', $x);},get_subdirs('/'));
+        foreach ($subdirs AS $type) $this->experiences[$type] = Array();
+        // if (count($path) == 0) {
+        //     $subdirs = array_map(function ($x) {return str_replace('/', '', $x);},get_subdirs('/'));
+        //     foreach ($subdirs AS $type) $this->experiences[$type] = Array();
+        // }
+        // else {
+        //     // Otherwise add only the experience type that we are in
+        //     $this->experiences[$path[1]] = Array();
+        // }
 
         // If we're in a specific experience with an experience type, only load that experience
 

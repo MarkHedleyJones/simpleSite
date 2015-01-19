@@ -48,7 +48,7 @@ function header_large($navLinks) {
 	return $c;
 }
 
-function header_small() {
+function header_small($navLinks) {
 	$location = url_array();
 
 	$c = new Content();
@@ -65,10 +65,22 @@ function header_small() {
 
 	// Create center navigation strip
 	$n = new Content();
-	formatPathURL($location, $n);
-	$n->wrap('div', array('class'=>'navbanner mainFont bg_c3 bdr_c2'));
-	$c->append($n);
-	$c->wrap('div', array('id'=>'header', 'class'=>'bg_c4'));
+    $list = new UnorderedList(array('class'=>'c_l1'));
+
+    foreach ($navLinks as $link) {
+        $list->append(href('/' . $link, ucfirst($link)));
+    }
+    $n->append($list);
+    $n->wrap('div', array('class'=>'navbanner mainFont bg_c3 bdr_c275 a_c2 ahover_c1'));
+    $c->append($n);
+
+    $b = new Content();
+
+    formatPathURL($location, $b);
+    $b->wrap('div', array('class'=>'navbanner mainFont bg_c4 bdr_c2', 'style'=>'border: none; background: none'));
+    $c->append($b);
+
+	$c->wrap('div', array('id'=>'header'));
 	return $c;
 }
 
@@ -250,18 +262,19 @@ function formatPathURL($path, $element) {
     $len = count($path);
     $element->href($full, sitename());
     if ($len > 0) {
-        $element->span('/');
+        $element->span(' › ');
     }
     foreach (array_values($path) as $i => $tree) {
         $full .= $tree . '/';
-        if ($i == $len - 1) $element->b(str_replace('_', ' ', $tree));
+        if ($i == $len - 1) {
+            $element->span(str_replace('-', ' ', str_replace('_', ' ', $tree)));
+        }
         else {
             //TODO: test for url, text swap
-            $element->href($full, str_replace('_', ' ', $tree));
-            $element->span('/');
+            $element->span(href($full,  str_replace('-', ' ', str_replace('_', ' ', $tree))) . ' › ', Array('typeof'=>'v:Breadcrumb'));
         }
     }
-    $element->br();
+    $element->wrap('div', Array('xmlns:v'=>"http://rdf.data-vocabulary.org/#"));
 }
 
 

@@ -10,7 +10,7 @@ if ($description == False) $description_text = "This post does not have any text
 else $description_text = retrieve_text($description);
 $p = new BasePage($experience->title,
                   limit_text($description_text,160),
-                  header_small(),
+                  header_small($experienceList->types()),
                   footer(),
                   True);
 
