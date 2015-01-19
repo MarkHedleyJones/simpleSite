@@ -481,7 +481,7 @@ class Experience extends Node {
                 if (strpos(strtolower($file->name), 'noshow') !== False &&
                     get_class($file) == 'Image' &&
                     $file->cached() == False) {
-                    $this->cache();
+                    $file->cache();
                 }
             }
 
