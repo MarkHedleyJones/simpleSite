@@ -25,5 +25,5 @@ echo "</urlset>\n";
 function xml_url($url) {
     echo "\t<url>\n";
     echo "\t\t<loc>" . $url . "</loc>\n";
-    echo "\t</url>\n";    
+    echo "\t</url>\n";
 }

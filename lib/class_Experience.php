@@ -684,6 +684,7 @@ class ExperienceList {
 
         // If we're at base (path is empty) then add all experience types to array
         $subdirs = array_map(function ($x) {return str_replace('/', '', $x);},get_subdirs('/'));
+
         foreach ($subdirs AS $type) $this->experiences[$type] = Array();
         // if (count($path) == 0) {
         //     $subdirs = array_map(function ($x) {return str_replace('/', '', $x);},get_subdirs('/'));
@@ -696,8 +697,8 @@ class ExperienceList {
 
         // If we're in a specific experience with an experience type, only load that experience
 
-        if (count($path) == 2 || count(get_subdirs(url_string())) == 0) {
-            array_push($this->experiences[$path[1]], new Experience(url_string()));
+        if (count($path) == 2 || count(get_subdirs($path_base)) == 0) {
+            array_push($this->experiences[$path[1]], new Experience($path_base));
         }
         else {
             // Otherwise load add experiences of each type in the experience array
