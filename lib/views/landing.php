@@ -7,7 +7,7 @@ foreach ($files as $file) {
     }
 }
 
-$p = new BasePage(NAME_OF_SITE,
+$p = new BasePage("Home",
                   $description,
                   header_large($experienceList->types()),
                   footer());

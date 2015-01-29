@@ -453,12 +453,17 @@ class Experience extends Node {
     public $thumbnail;
     public $last_modified;
     public $flags;
+    public $type;
 
     public function __construct($location) {
         $this->thumbnail = False;
         $this->files = Array();
         $this->flags = Array();
         parent::__construct($location);
+        if (count(array_filter(explode('/', $this->url))) == 2) {
+            $this->type  = array_values(array_filter(explode('/', $this->url)))[0];
+        }
+        else $this->type = False;
         $this->last_modified = last_modified($this->path);
         $this->populate_files();
         // Use the oldest known date of the folder

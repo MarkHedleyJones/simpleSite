@@ -103,8 +103,8 @@ class BasePage extends Page {
                                 $header=False,
                                 $footer=False,
                                 $contentWidth=False) {
-        if ($title == False ) $title = sitename();
-        else $title .= ' | ' . sitename();
+        if ($title == False ) $title = NAME_OF_SITE;
+        else $title .= ' | ' . NAME_OF_SITE;
         parent::__construct($title, $description);
         $this->header = $header;
         $this->footer = $footer;
