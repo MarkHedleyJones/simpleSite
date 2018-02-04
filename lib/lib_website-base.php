@@ -38,7 +38,7 @@ function header_large($navLinks) {
 
 	$list = new UnorderedList(array('class'=>'c_l1'));
 	foreach ($navLinks as $link) {
-		$list->append(href('/' . $link, ucfirst($link)));
+		$list->append(href('/' . $link . '/', ucfirst($link)));
 	}
 	$n->append($list);
 	$n->wrap('div', array('class'=>'navbanner mainFont bg_c3 bdr_c275 a_c2 ahover_c1'));
@@ -68,7 +68,7 @@ function header_small($navLinks) {
     $list = new UnorderedList(array('class'=>'c_l1'));
 
     foreach ($navLinks as $link) {
-        $list->append(href('/' . $link, ucfirst($link)));
+        $list->append(href('/' . $link . '/', ucfirst($link)));
     }
     $n->append($list);
     $n->wrap('div', array('class'=>'navbanner mainFont bg_c3 bdr_c275 a_c2 ahover_c1'));
