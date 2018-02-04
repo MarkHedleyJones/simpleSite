@@ -95,7 +95,7 @@ fi
 sudo ln -sf $install/ /var/www/$name
 echo "Done!"
 echo ""
-echo "Creating apache configuration file (/etc/apache2/sites-available/$name)..."
+echo "Creating apache configuration file (/etc/apache2/sites-available/$name.conf)..."
 sudo echo "<VirtualHost *:80>
     ServerAdmin $email
     ServerName $url_content
@@ -122,7 +122,7 @@ sudo echo "<VirtualHost *:80>
         Order allow,deny
         allow from all
     </Directory>
-</VirtualHost>" > /etc/apache2/sites-available/$name
+</VirtualHost>" > /etc/apache2/sites-available/$name.conf
 echo "Done!"
 echo ""
 echo "Enabling new website configuration in Apache..."
